@@ -88,27 +88,27 @@
 			<Properties>
 				<BinaryString name="AttributesSerialize"></BinaryString>
 				<CoordinateFrame name="CFrame">
-					<X>-63.8459625</X>
-					<Y>59.8091736</Y>
-					<Z>81.3369675</Z>
-					<R00>0.999999702</R00>
-					<R01>0.000182673364</R01>
-					<R02>-0.000743865792</R02>
-					<R10>-0</R10>
-					<R11>0.971145689</R11>
-					<R12>0.238487184</R12>
-					<R20>0.000765967241</R20>
-					<R21>-0.23848711</R21>
-					<R22>0.971145391</R22>
+					<X>-51.8321381</X>
+					<Y>58.8378029</Y>
+					<Z>70.9870148</Z>
+					<R00>0.999155343</R00>
+					<R01>-0.00472148834</R01>
+					<R02>0.0408204384</R02>
+					<R10>4.65661287e-10</R10>
+					<R11>0.993377268</R11>
+					<R12>0.114898793</R12>
+					<R20>-0.041092582</R20>
+					<R21>-0.114801742</R21>
+					<R22>0.992538214</R22>
 				</CoordinateFrame>
 				<Ref name="CameraSubject">null</Ref>
 				<token name="CameraType">0</token>
 				<float name="FieldOfView">70</float>
 				<token name="FieldOfViewMode">0</token>
 				<CoordinateFrame name="Focus">
-					<X>-63.8444748</X>
-					<Y>59.3321991</Y>
-					<Z>79.3946762</Z>
+					<X>-51.9137802</X>
+					<Y>58.6080017</Y>
+					<Z>69.0019073</Z>
 					<R00>1</R00>
 					<R01>0</R01>
 					<R02>0</R02>
@@ -2688,6 +2688,8 @@ local SPACING = 8
 
 local HEIGHT = 25
 
+local tween_service = game:GetService("TweenService")
+
 
 
 columns_x = {
@@ -2722,7 +2724,17 @@ local function mouse_stuff()
 	for i = 1, #columns_x do
 		--check if the x intersection position of the player ray is in the area of one of the columns
 		if  x_intersection >= columns_x[i] - (SPACING / 2) and x_intersection <= columns_x[i] + (SPACING / 2) then
-			token.Position = Vector3.new(center.Position.X - columns_x[i], token.Position.Y, token.Position.Z)
+			
+			local goal = {}
+			goal.Position = Vector3.new(center.Position.X - columns_x[i], token.Position.Y, token.Position.Z)
+			
+			local tween_info = TweenInfo.new(0.2, Enum.EasingStyle.Quart)
+			
+			local tween = tween_service:Create(token, tween_info, goal)
+			
+			tween:Play()
+			
+			--token.Position = Vector3.new(center.Position.X - columns_x[i], token.Position.Y, token.Position.Z)
 			break
 		end
 	end
@@ -3474,7 +3486,7 @@ local start_remote = game:GetService("ReplicatedStorage").Start
 local turn_remote = game:GetService("ReplicatedStorage").Turn
 local turn_function = game:GetService("ReplicatedStorage").TurnFunction
 
-local progress = false
+local finished = false
 
 
 local function player1(player)
@@ -3482,9 +3494,9 @@ local function player1(player)
 	turn_remote:FireClient(player)
 	--local column = turn_function:InvokeClient()
 	
-	repeat wait() until progress
+	repeat wait() until finished
 	
-	progress = false
+	finished = false
 	
 end
 
@@ -3505,7 +3517,7 @@ start_remote.OnServerEvent:Connect(function(player)
 end)
 
 turn_remote.OnServerEvent:Connect(function()
-	progress = true
+	finished = true
 end)]]></ProtectedString>
 				<int64 name="SourceAssetId">-1</int64>
 				<BinaryString name="Tags"></BinaryString>
