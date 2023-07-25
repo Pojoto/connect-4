@@ -15,6 +15,8 @@ local SPACING = 8
 
 local HEIGHT = 25
 
+local tween_service = game:GetService("TweenService")
+
 
 
 columns_x = {
@@ -49,7 +51,17 @@ local function mouse_stuff()
 	for i = 1, #columns_x do
 		--check if the x intersection position of the player ray is in the area of one of the columns
 		if  x_intersection >= columns_x[i] - (SPACING / 2) and x_intersection <= columns_x[i] + (SPACING / 2) then
-			token.Position = Vector3.new(center.Position.X - columns_x[i], token.Position.Y, token.Position.Z)
+			
+			local goal = {}
+			goal.Position = Vector3.new(center.Position.X - columns_x[i], token.Position.Y, token.Position.Z)
+			
+			local tween_info = TweenInfo.new(0.2, Enum.EasingStyle.Quart)
+			
+			local tween = tween_service:Create(token, tween_info, goal)
+			
+			tween:Play()
+			
+			--token.Position = Vector3.new(center.Position.X - columns_x[i], token.Position.Y, token.Position.Z)
 			break
 		end
 	end
