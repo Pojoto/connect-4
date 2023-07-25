@@ -11,9 +11,9 @@
 			<BinaryString name="CollisionGroupData">AQEABP////8HRGVmYXVsdA==</BinaryString>
 			<Ref name="CurrentCamera">RBXB763672951484BE4A501712D8C44580B</Ref>
 			<double name="DistributedGameTime">0</double>
-			<bool name="EnableFluidForces">false</bool>
 			<bool name="ExplicitAutoJoints">true</bool>
 			<float name="FallenPartsDestroyHeight">-500</float>
+			<token name="FluidForces">0</token>
 			<Vector3 name="GlobalWind">
 				<X>0</X>
 				<Y>0</Y>
@@ -88,27 +88,27 @@
 			<Properties>
 				<BinaryString name="AttributesSerialize"></BinaryString>
 				<CoordinateFrame name="CFrame">
-					<X>3.04399061</X>
-					<Y>55.0423851</Y>
-					<Z>4.03058147</Z>
-					<R00>0.700211883</R00>
-					<R01>-0.59464258</R01>
-					<R02>0.395099431</R02>
+					<X>-63.8459625</X>
+					<Y>59.8091736</Y>
+					<Z>81.3369675</Z>
+					<R00>0.999999702</R00>
+					<R01>0.000182673364</R01>
+					<R02>-0.000743865792</R02>
 					<R10>-0</R10>
-					<R11>0.553410888</R11>
-					<R12>0.832908452</R12>
-					<R20>-0.713935137</R20>
-					<R21>-0.583212376</R21>
-					<R22>0.387504846</R22>
+					<R11>0.971145689</R11>
+					<R12>0.238487184</R12>
+					<R20>0.000765967241</R20>
+					<R21>-0.23848711</R21>
+					<R22>0.971145391</R22>
 				</CoordinateFrame>
 				<Ref name="CameraSubject">null</Ref>
 				<token name="CameraType">0</token>
 				<float name="FieldOfView">70</float>
 				<token name="FieldOfViewMode">0</token>
 				<CoordinateFrame name="Focus">
-					<X>2.25379157</X>
-					<Y>53.3765678</Y>
-					<Z>3.2555716</Z>
+					<X>-63.8444748</X>
+					<Y>59.3321991</Y>
+					<Z>79.3946762</Z>
 					<R00>1</R00>
 					<R01>0</R01>
 					<R02>0</R02>
@@ -1892,6 +1892,104 @@ gcLgc4RKxr21zq2UlJSM]]></BinaryString>
 					</Vector3>
 				</Properties>
 			</Item>
+			<Item class="Part" referent="RBXE5BE22CA359B40B7971FABA308500705">
+				<Properties>
+					<bool name="Anchored">true</bool>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<float name="BackParamA">-0.5</float>
+					<float name="BackParamB">0.5</float>
+					<token name="BackSurface">0</token>
+					<token name="BackSurfaceInput">0</token>
+					<float name="BottomParamA">-0.5</float>
+					<float name="BottomParamB">0.5</float>
+					<token name="BottomSurface">0</token>
+					<token name="BottomSurfaceInput">0</token>
+					<CoordinateFrame name="CFrame">
+						<X>-35.5</X>
+						<Y>50</Y>
+						<Z>0</Z>
+						<R00>1</R00>
+						<R01>0</R01>
+						<R02>0</R02>
+						<R10>0</R10>
+						<R11>1</R11>
+						<R12>0</R12>
+						<R20>0</R20>
+						<R21>0</R21>
+						<R22>1</R22>
+					</CoordinateFrame>
+					<bool name="CanCollide">false</bool>
+					<bool name="CanQuery">true</bool>
+					<bool name="CanTouch">false</bool>
+					<bool name="CastShadow">true</bool>
+					<string name="CollisionGroup">Default</string>
+					<int name="CollisionGroupId">0</int>
+					<Color3uint8 name="Color3uint8">4288914085</Color3uint8>
+					<PhysicalProperties name="CustomPhysicalProperties">
+						<CustomPhysics>false</CustomPhysics>
+					</PhysicalProperties>
+					<bool name="EnableFluidForces">true</bool>
+					<float name="FrontParamA">-0.5</float>
+					<float name="FrontParamB">0.5</float>
+					<token name="FrontSurface">0</token>
+					<token name="FrontSurfaceInput">0</token>
+					<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+					<float name="LeftParamA">-0.5</float>
+					<float name="LeftParamB">0.5</float>
+					<token name="LeftSurface">0</token>
+					<token name="LeftSurfaceInput">0</token>
+					<bool name="Locked">false</bool>
+					<bool name="Massless">true</bool>
+					<token name="Material">256</token>
+					<string name="MaterialVariantSerialized"></string>
+					<string name="Name">Center</string>
+					<CoordinateFrame name="PivotOffset">
+						<X>0</X>
+						<Y>0</Y>
+						<Z>0</Z>
+						<R00>1</R00>
+						<R01>0</R01>
+						<R02>0</R02>
+						<R10>0</R10>
+						<R11>1</R11>
+						<R12>0</R12>
+						<R20>0</R20>
+						<R21>0</R21>
+						<R22>1</R22>
+					</CoordinateFrame>
+					<float name="Reflectance">0</float>
+					<float name="RightParamA">-0.5</float>
+					<float name="RightParamB">0.5</float>
+					<token name="RightSurface">0</token>
+					<token name="RightSurfaceInput">0</token>
+					<int name="RootPriority">0</int>
+					<Vector3 name="RotVelocity">
+						<X>0</X>
+						<Y>0</Y>
+						<Z>0</Z>
+					</Vector3>
+					<int64 name="SourceAssetId">-1</int64>
+					<BinaryString name="Tags"></BinaryString>
+					<float name="TopParamA">-0.5</float>
+					<float name="TopParamB">0.5</float>
+					<token name="TopSurface">0</token>
+					<token name="TopSurfaceInput">0</token>
+					<float name="Transparency">1</float>
+					<UniqueId name="UniqueId">61bd37178d68f93404d027cf000046d8</UniqueId>
+					<Vector3 name="Velocity">
+						<X>0</X>
+						<Y>0</Y>
+						<Z>0</Z>
+					</Vector3>
+					<token name="formFactorRaw">1</token>
+					<token name="shape">0</token>
+					<Vector3 name="size">
+						<X>1</X>
+						<Y>1</Y>
+						<Z>1</Z>
+					</Vector3>
+				</Properties>
+			</Item>
 		</Item>
 		<Item class="Part" referent="RBX5E0F06E01321425BA7B77ED515CB490D">
 			<Properties>
@@ -2564,6 +2662,131 @@ gcLgc4RKxr21zq2UlJSM]]></BinaryString>
 			<BinaryString name="Tags"></BinaryString>
 			<UniqueId name="UniqueId">5c02bb14ca08f3c804ce0ef800000304</UniqueId>
 		</Properties>
+		<Item class="LocalScript" referent="RBX7662E75EAC2B4D70B14AB59FC03835AB">
+			<Properties>
+				<BinaryString name="AttributesSerialize"></BinaryString>
+				<bool name="Disabled">false</bool>
+				<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+				<Content name="LinkedSource"><null></null></Content>
+				<string name="Name">LocalScript</string>
+				<token name="RunContext">0</token>
+				<string name="ScriptGuid">{45121F16-331F-4B5F-9F4E-77F8768A4D30}</string>
+				<ProtectedString name="Source"><![CDATA[
+local turn_remote = game:GetService('ReplicatedStorage'):WaitForChild("Turn")
+local turn_function = game:GetService("ReplicatedStorage").TurnFunction
+
+local runservice = game:GetService("RunService")
+
+
+local player = game:GetService("Players").LocalPlayer
+
+local mouse = player:GetMouse()
+
+local center = game.Workspace:WaitForChild("Board").Center
+
+local SPACING = 8
+
+local HEIGHT = 25
+
+
+
+columns_x = {
+	
+	-3 * SPACING,
+	-2 * SPACING,
+	-SPACING,
+	0,
+	SPACING,
+	2 * SPACING,
+	3 * SPACING
+	
+}
+
+
+local token
+
+--this function tracks mouse movement and adjusts token position based on it
+local function mouse_stuff()
+	
+	local direction = mouse.UnitRay.Direction
+	local origin = mouse.UnitRay.Origin
+	
+	local cf = CFrame.new(origin, origin + direction)
+	cf = center.CFrame:ToObjectSpace(cf)
+	
+	
+	local t = cf.Z / cf.LookVector.Z
+	
+	local x_intersection = cf.X + t * cf.LookVector.X
+	
+	for i = 1, #columns_x do
+		--check if the x intersection position of the player ray is in the area of one of the columns
+		if  x_intersection >= columns_x[i] - (SPACING / 2) and x_intersection <= columns_x[i] + (SPACING / 2) then
+			token.Position = Vector3.new(center.Position.X - columns_x[i], token.Position.Y, token.Position.Z)
+			break
+		end
+	end
+	
+end
+
+local connection
+
+--this function is called when a mouse click happens > disconnect all connections and drop the token
+local function click()
+
+	token.Anchored = false
+
+	runservice:UnbindFromRenderStep("mouse_bind")
+	
+	if connection then
+		connection:Disconnect()
+	end
+	
+	turn_remote:FireServer()
+	
+end
+
+
+local function player_turn()
+	
+	--create token
+	token = game:GetService("ReplicatedStorage").Token:Clone()
+	token.Anchored = true
+	token.Position = Vector3.new(center.Position.X + columns_x[4], center.Position.Y + HEIGHT, center.Position.Z)
+	token.Parent = game.Workspace
+	
+	--establish function connections (click event and mouse tracking)
+	connection = mouse.Button1Down:Connect(click)
+	runservice:BindToRenderStep("mouse_bind", 1, mouse_stuff)
+	
+	for i = 0, 10 do
+		wait(1)
+	end
+	
+	token.Anchored = false
+	
+	turn_remote:FireServer()
+	
+end
+
+
+
+turn_remote.OnClientEvent:Connect(function()
+	
+	player_turn()
+	
+	
+	
+end)
+
+--turn_function.OnClientInvoke = player_turn
+
+]]></ProtectedString>
+				<int64 name="SourceAssetId">-1</int64>
+				<BinaryString name="Tags"></BinaryString>
+				<UniqueId name="UniqueId">61bd37178d68f93404d027cf00004587</UniqueId>
+			</Properties>
+		</Item>
 	</Item>
 	<Item class="TweenService" referent="RBX91C78481A62F4323A0B922E3F35C0617">
 		<Properties>
@@ -2659,6 +2882,7 @@ gcLgc4RKxr21zq2UlJSM]]></BinaryString>
 			<bool name="AllowCustomAnimations">true</bool>
 			<BinaryString name="AttributesSerialize"></BinaryString>
 			<bool name="AutoJumpEnabled">true</bool>
+			<token name="AvatarJointUpgrade">0</token>
 			<float name="CameraMaxZoomDistance">400</float>
 			<float name="CameraMinZoomDistance">0.5</float>
 			<token name="CameraMode">0</token>
@@ -2667,6 +2891,7 @@ gcLgc4RKxr21zq2UlJSM]]></BinaryString>
 			<float name="CharacterMaxSlopeAngle">89</float>
 			<bool name="CharacterUseJumpPower">true</bool>
 			<float name="CharacterWalkSpeed">16</float>
+			<token name="DeathStyle">0</token>
 			<token name="DevCameraOcclusionMode">0</token>
 			<token name="DevComputerCameraMovementMode">0</token>
 			<token name="DevComputerMovementMode">0</token>
@@ -2737,6 +2962,35 @@ gcLgc4RKxr21zq2UlJSM]]></BinaryString>
 				<BinaryString name="Tags"></BinaryString>
 				<UniqueId name="UniqueId">5c02bb14ca08f3c804ce0ef80000345c</UniqueId>
 			</Properties>
+			<Item class="LocalScript" referent="RBXE201987A12F64C53AF1A830A01C30B5F">
+				<Properties>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<bool name="Disabled">false</bool>
+					<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+					<Content name="LinkedSource"><null></null></Content>
+					<string name="Name">Camera</string>
+					<token name="RunContext">0</token>
+					<string name="ScriptGuid">{503D573A-913A-4756-B28C-32C44A708499}</string>
+					<ProtectedString name="Source"><![CDATA[
+repeat wait() until workspace.CurrentCamera
+
+local camera = workspace.CurrentCamera
+
+camera.CameraType = Enum.CameraType.Scriptable
+
+local board = game.Workspace:WaitForChild("Board")
+
+local center = board.Center
+
+camera.CFrame = center.CFrame + Vector3.new(0, 0, 40)
+
+
+]]></ProtectedString>
+					<int64 name="SourceAssetId">-1</int64>
+					<BinaryString name="Tags"></BinaryString>
+					<UniqueId name="UniqueId">61bd37178d68f93404d027cf000046c5</UniqueId>
+				</Properties>
+			</Item>
 		</Item>
 	</Item>
 	<Item class="StarterPack" referent="RBX0858D5F300D647DAAB6C94AD40947C18">
@@ -2763,6 +3017,211 @@ gcLgc4RKxr21zq2UlJSM]]></BinaryString>
 			<UniqueId name="UniqueId">5c02bb14ca08f3c804ce0ef800000314</UniqueId>
 			<token name="VirtualCursorMode">0</token>
 		</Properties>
+		<Item class="ScreenGui" referent="RBXB5EFB56B956B4FF485C947E340DAE465">
+			<Properties>
+				<BinaryString name="AttributesSerialize"></BinaryString>
+				<bool name="AutoLocalize">true</bool>
+				<bool name="ClipToDeviceSafeArea">true</bool>
+				<int name="DisplayOrder">0</int>
+				<bool name="Enabled">true</bool>
+				<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+				<string name="Name">ScreenGui</string>
+				<bool name="ResetOnSpawn">true</bool>
+				<Ref name="RootLocalizationTable">null</Ref>
+				<token name="SafeAreaCompatibility">1</token>
+				<token name="ScreenInsets">2</token>
+				<token name="SelectionBehaviorDown">0</token>
+				<token name="SelectionBehaviorLeft">0</token>
+				<token name="SelectionBehaviorRight">0</token>
+				<token name="SelectionBehaviorUp">0</token>
+				<bool name="SelectionGroup">false</bool>
+				<int64 name="SourceAssetId">-1</int64>
+				<BinaryString name="Tags"></BinaryString>
+				<UniqueId name="UniqueId">61bd37178d68f93404d027cf00004321</UniqueId>
+				<token name="ZIndexBehavior">1</token>
+			</Properties>
+			<Item class="Frame" referent="RBXC5FC853866AD45028FEE53D4EF12B204">
+				<Properties>
+					<bool name="Active">false</bool>
+					<Vector2 name="AnchorPoint">
+						<X>0</X>
+						<Y>0</Y>
+					</Vector2>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<bool name="AutoLocalize">true</bool>
+					<token name="AutomaticSize">0</token>
+					<Color3 name="BackgroundColor3">
+						<R>1</R>
+						<G>1</G>
+						<B>1</B>
+					</Color3>
+					<float name="BackgroundTransparency">0</float>
+					<Color3 name="BorderColor3">
+						<R>0</R>
+						<G>0</G>
+						<B>0</B>
+					</Color3>
+					<token name="BorderMode">0</token>
+					<int name="BorderSizePixel">0</int>
+					<bool name="ClipsDescendants">false</bool>
+					<bool name="Draggable">false</bool>
+					<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+					<int name="LayoutOrder">0</int>
+					<string name="Name">Frame</string>
+					<Ref name="NextSelectionDown">null</Ref>
+					<Ref name="NextSelectionLeft">null</Ref>
+					<Ref name="NextSelectionRight">null</Ref>
+					<Ref name="NextSelectionUp">null</Ref>
+					<UDim2 name="Position">
+						<XS>0.893939435</XS>
+						<XO>0</XO>
+						<YS>0.789735079</YS>
+						<YO>0</YO>
+					</UDim2>
+					<Ref name="RootLocalizationTable">null</Ref>
+					<float name="Rotation">0</float>
+					<bool name="Selectable">false</bool>
+					<token name="SelectionBehaviorDown">0</token>
+					<token name="SelectionBehaviorLeft">0</token>
+					<token name="SelectionBehaviorRight">0</token>
+					<token name="SelectionBehaviorUp">0</token>
+					<bool name="SelectionGroup">false</bool>
+					<Ref name="SelectionImageObject">null</Ref>
+					<int name="SelectionOrder">0</int>
+					<UDim2 name="Size">
+						<XS>0</XS>
+						<XO>100</XO>
+						<YS>0</YS>
+						<YO>100</YO>
+					</UDim2>
+					<token name="SizeConstraint">0</token>
+					<int64 name="SourceAssetId">-1</int64>
+					<token name="Style">0</token>
+					<BinaryString name="Tags"></BinaryString>
+					<UniqueId name="UniqueId">61bd37178d68f93404d027cf00004347</UniqueId>
+					<bool name="Visible">true</bool>
+					<int name="ZIndex">1</int>
+				</Properties>
+				<Item class="TextButton" referent="RBX58DF76D92865424493A592EEF6F8DAF3">
+					<Properties>
+						<bool name="Active">true</bool>
+						<Vector2 name="AnchorPoint">
+							<X>0</X>
+							<Y>0</Y>
+						</Vector2>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<bool name="AutoButtonColor">true</bool>
+						<bool name="AutoLocalize">true</bool>
+						<token name="AutomaticSize">0</token>
+						<Color3 name="BackgroundColor3">
+							<R>0.450980425</R>
+							<G>1</G>
+							<B>0.70588237</B>
+						</Color3>
+						<float name="BackgroundTransparency">0</float>
+						<Color3 name="BorderColor3">
+							<R>0</R>
+							<G>0</G>
+							<B>0</B>
+						</Color3>
+						<token name="BorderMode">0</token>
+						<int name="BorderSizePixel">0</int>
+						<bool name="ClipsDescendants">false</bool>
+						<bool name="Draggable">false</bool>
+						<Font name="FontFace">
+							<Family><url>rbxasset://fonts/families/SourceSansPro.json</url></Family>
+							<Weight>400</Weight>
+							<Style>Normal</Style>
+							<CachedFaceId><url>rbxasset://fonts/SourceSansPro-Regular.ttf</url></CachedFaceId>
+						</Font>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<int name="LayoutOrder">0</int>
+						<float name="LineHeight">1</float>
+						<int name="MaxVisibleGraphemes">-1</int>
+						<bool name="Modal">false</bool>
+						<string name="Name">TextButton</string>
+						<Ref name="NextSelectionDown">null</Ref>
+						<Ref name="NextSelectionLeft">null</Ref>
+						<Ref name="NextSelectionRight">null</Ref>
+						<Ref name="NextSelectionUp">null</Ref>
+						<UDim2 name="Position">
+							<XS>0.139999986</XS>
+							<XO>0</XO>
+							<YS>0.179999992</YS>
+							<YO>0</YO>
+						</UDim2>
+						<bool name="RichText">false</bool>
+						<Ref name="RootLocalizationTable">null</Ref>
+						<float name="Rotation">0</float>
+						<bool name="Selectable">true</bool>
+						<bool name="Selected">false</bool>
+						<token name="SelectionBehaviorDown">0</token>
+						<token name="SelectionBehaviorLeft">0</token>
+						<token name="SelectionBehaviorRight">0</token>
+						<token name="SelectionBehaviorUp">0</token>
+						<bool name="SelectionGroup">false</bool>
+						<Ref name="SelectionImageObject">null</Ref>
+						<int name="SelectionOrder">0</int>
+						<UDim2 name="Size">
+							<XS>0</XS>
+							<XO>72</XO>
+							<YS>0</YS>
+							<YO>63</YO>
+						</UDim2>
+						<token name="SizeConstraint">0</token>
+						<int64 name="SourceAssetId">-1</int64>
+						<token name="Style">0</token>
+						<BinaryString name="Tags"></BinaryString>
+						<string name="Text">Start Game</string>
+						<Color3 name="TextColor3">
+							<R>0</R>
+							<G>0</G>
+							<B>0</B>
+						</Color3>
+						<token name="TextDirection">0</token>
+						<bool name="TextScaled">false</bool>
+						<float name="TextSize">14</float>
+						<Color3 name="TextStrokeColor3">
+							<R>0</R>
+							<G>0</G>
+							<B>0</B>
+						</Color3>
+						<float name="TextStrokeTransparency">1</float>
+						<float name="TextTransparency">0</float>
+						<token name="TextTruncate">0</token>
+						<bool name="TextWrapped">false</bool>
+						<token name="TextXAlignment">2</token>
+						<token name="TextYAlignment">1</token>
+						<UniqueId name="UniqueId">61bd37178d68f93404d027cf00004368</UniqueId>
+						<bool name="Visible">true</bool>
+						<int name="ZIndex">1</int>
+					</Properties>
+				</Item>
+			</Item>
+		</Item>
+		<Item class="LocalScript" referent="RBXA83E607CE69644ED9EE09C925C358650">
+			<Properties>
+				<BinaryString name="AttributesSerialize"></BinaryString>
+				<bool name="Disabled">false</bool>
+				<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+				<Content name="LinkedSource"><null></null></Content>
+				<string name="Name">GUI</string>
+				<token name="RunContext">0</token>
+				<string name="ScriptGuid">{0A30E248-530C-424B-B0F7-36879A4B60F3}</string>
+				<ProtectedString name="Source"><![CDATA[
+
+local start_button = script.Parent.ScreenGui.Frame.TextButton
+
+local start_remote = game:GetService("ReplicatedStorage").Start
+
+start_button.MouseButton1Click:Connect(function()
+	start_remote:FireServer()
+end)]]></ProtectedString>
+				<int64 name="SourceAssetId">-1</int64>
+				<BinaryString name="Tags"></BinaryString>
+				<UniqueId name="UniqueId">61bd37178d68f93404d027cf000044e0</UniqueId>
+			</Properties>
+		</Item>
 	</Item>
 	<Item class="LocalizationService" referent="RBX0AF01628A0A44DB5B1DC603D6E8A410D">
 		<Properties>
@@ -2942,7 +3401,7 @@ gcLgc4RKxr21zq2UlJSM]]></BinaryString>
 		<Item class="Script" referent="5">
 			<Properties>
 				<BinaryString name="AttributesSerialize"></BinaryString>
-				<bool name="Disabled">false</bool>
+				<bool name="Disabled">true</bool>
 				<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 				<Content name="LinkedSource"><null></null></Content>
 				<string name="Name">Server</string>
@@ -2953,7 +3412,7 @@ local board = game.Workspace.Board
 
 local bottom = board.Bottom
 
-local token = game:GetService("ServerStorage").Token
+local token = game:GetService("ReplicatedStorage").Token
 
 local SPACING = 8
 local HEIGHT_DIFF = 42
@@ -3001,6 +3460,58 @@ end
 				<UniqueId name="UniqueId">5c02bb14ca08f3c804ce0ef800003456</UniqueId>
 			</Properties>
 		</Item>
+		<Item class="Script" referent="RBX2C884799972E4BF4A21697E0AC417776">
+			<Properties>
+				<BinaryString name="AttributesSerialize"></BinaryString>
+				<bool name="Disabled">false</bool>
+				<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+				<Content name="LinkedSource"><null></null></Content>
+				<string name="Name">Script</string>
+				<token name="RunContext">0</token>
+				<string name="ScriptGuid">{6CA48D86-D7FE-440A-80B1-D2E196B2C915}</string>
+				<ProtectedString name="Source"><![CDATA[
+local start_remote = game:GetService("ReplicatedStorage").Start
+local turn_remote = game:GetService("ReplicatedStorage").Turn
+local turn_function = game:GetService("ReplicatedStorage").TurnFunction
+
+local progress = false
+
+
+local function player1(player)
+	
+	turn_remote:FireClient(player)
+	--local column = turn_function:InvokeClient()
+	
+	repeat wait() until progress
+	
+	progress = false
+	
+end
+
+
+local function game_loop(player)
+	
+	for i = 0, 42 do
+		player1(player)
+		print('hi')
+	end
+	
+end
+
+
+start_remote.OnServerEvent:Connect(function(player)
+	--player1(player)
+	game_loop(player)
+end)
+
+turn_remote.OnServerEvent:Connect(function()
+	progress = true
+end)]]></ProtectedString>
+				<int64 name="SourceAssetId">-1</int64>
+				<BinaryString name="Tags"></BinaryString>
+				<UniqueId name="UniqueId">61bd37178d68f93404d027cf0000431a</UniqueId>
+			</Properties>
+		</Item>
 	</Item>
 	<Item class="ServerStorage" referent="RBXD90E52B96D8941DFB172244DFB98EF29">
 		<Properties>
@@ -3011,6 +3522,61 @@ end
 			<BinaryString name="Tags"></BinaryString>
 			<UniqueId name="UniqueId">5c02bb14ca08f3c804ce0ef800000334</UniqueId>
 		</Properties>
+	</Item>
+	<Item class="ReplicatedStorage" referent="1">
+		<Properties>
+			<BinaryString name="AttributesSerialize"></BinaryString>
+			<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+			<string name="Name">ReplicatedStorage</string>
+			<int64 name="SourceAssetId">-1</int64>
+			<BinaryString name="Tags"></BinaryString>
+			<UniqueId name="UniqueId">5c02bb14ca08f3c804ce0ef800000335</UniqueId>
+		</Properties>
+		<Item class="Folder" referent="2">
+			<Properties>
+				<BinaryString name="AttributesSerialize"></BinaryString>
+				<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+				<string name="Name">Common</string>
+				<int64 name="SourceAssetId">-1</int64>
+				<BinaryString name="Tags"></BinaryString>
+				<UniqueId name="UniqueId">5c02bb14ca08f3c804ce0ef800003454</UniqueId>
+			</Properties>
+			<Item class="ModuleScript" referent="3">
+				<Properties>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+					<Content name="LinkedSource"><null></null></Content>
+					<string name="Name">Hello</string>
+					<string name="ScriptGuid">{CC430C22-C101-44D8-9F07-7B078AD71472}</string>
+					<ProtectedString name="Source"><![CDATA[return function()
+	print("Hello, world!")
+end]]></ProtectedString>
+					<int64 name="SourceAssetId">-1</int64>
+					<BinaryString name="Tags"></BinaryString>
+					<UniqueId name="UniqueId">5c02bb14ca08f3c804ce0ef800003455</UniqueId>
+				</Properties>
+			</Item>
+		</Item>
+		<Item class="RemoteEvent" referent="RBX1C2BA7030C204E0885EFF803AEE117B9">
+			<Properties>
+				<BinaryString name="AttributesSerialize"></BinaryString>
+				<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+				<string name="Name">Start</string>
+				<int64 name="SourceAssetId">-1</int64>
+				<BinaryString name="Tags"></BinaryString>
+				<UniqueId name="UniqueId">61bd37178d68f93404d027cf000044f3</UniqueId>
+			</Properties>
+		</Item>
+		<Item class="RemoteEvent" referent="RBX45DE95EFCC424FF9812232B9F709DE51">
+			<Properties>
+				<BinaryString name="AttributesSerialize"></BinaryString>
+				<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+				<string name="Name">Turn</string>
+				<int64 name="SourceAssetId">-1</int64>
+				<BinaryString name="Tags"></BinaryString>
+				<UniqueId name="UniqueId">61bd37178d68f93404d027cf0000457a</UniqueId>
+			</Properties>
+		</Item>
 		<Item class="Part" referent="RBX4491A0785FCF48088A923849B53B2BC5">
 			<Properties>
 				<bool name="Anchored">false</bool>
@@ -3109,40 +3675,15 @@ end
 				</Vector3>
 			</Properties>
 		</Item>
-	</Item>
-	<Item class="ReplicatedStorage" referent="1">
-		<Properties>
-			<BinaryString name="AttributesSerialize"></BinaryString>
-			<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
-			<string name="Name">ReplicatedStorage</string>
-			<int64 name="SourceAssetId">-1</int64>
-			<BinaryString name="Tags"></BinaryString>
-			<UniqueId name="UniqueId">5c02bb14ca08f3c804ce0ef800000335</UniqueId>
-		</Properties>
-		<Item class="Folder" referent="2">
+		<Item class="RemoteFunction" referent="RBX845D813585E048458EBF43692D9C1363">
 			<Properties>
 				<BinaryString name="AttributesSerialize"></BinaryString>
 				<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
-				<string name="Name">Common</string>
+				<string name="Name">TurnFunction</string>
 				<int64 name="SourceAssetId">-1</int64>
 				<BinaryString name="Tags"></BinaryString>
-				<UniqueId name="UniqueId">5c02bb14ca08f3c804ce0ef800003454</UniqueId>
+				<UniqueId name="UniqueId">7da554aebeabc75a04d1b8f70000390b</UniqueId>
 			</Properties>
-			<Item class="ModuleScript" referent="3">
-				<Properties>
-					<BinaryString name="AttributesSerialize"></BinaryString>
-					<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
-					<Content name="LinkedSource"><null></null></Content>
-					<string name="Name">Hello</string>
-					<string name="ScriptGuid">{CC430C22-C101-44D8-9F07-7B078AD71472}</string>
-					<ProtectedString name="Source"><![CDATA[return function()
-	print("Hello, world!")
-end]]></ProtectedString>
-					<int64 name="SourceAssetId">-1</int64>
-					<BinaryString name="Tags"></BinaryString>
-					<UniqueId name="UniqueId">5c02bb14ca08f3c804ce0ef800003455</UniqueId>
-				</Properties>
-			</Item>
 		</Item>
 	</Item>
 	<Item class="LuaWebService" referent="RBX973677D9E70D4F8B9A3BAC897FE06C12">
@@ -3235,6 +3776,7 @@ end]]></ProtectedString>
 	<Item class="ServiceVisibilityService" referent="RBX3A4AF23246654DA5AAA740EFCCBDAEAE">
 		<Properties>
 			<BinaryString name="AttributesSerialize"></BinaryString>
+			<BinaryString name="HiddenServices">AAAAAA==</BinaryString>
 			<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 			<string name="Name">ServiceVisibilityService</string>
 			<int64 name="SourceAssetId">-1</int64>
