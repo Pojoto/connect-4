@@ -9,8 +9,10 @@ function GameObject.new(player1, player2, unit)
 	local newGame = {}
 	setmetatable(newGame, GameObject)
 	
-	newGame.Player1 = player1
-	newGame.Player2 = player2
+	local player1_info = {player1, Color3.new(1, 0, 0)}
+	local player2_info = {player2, Color3.new(1, 1, 0)}
+	
+	newGame.Players = {player1_info, player2_info}
 	newGame.BoardMatrix = {
 		{},
 		{},
@@ -21,14 +23,14 @@ function GameObject.new(player1, player2, unit)
 		{}
 	}
 	newGame.Unit = unit
-	newGame.CurrentTurn = player1
+	newGame.CurrentTurn = 1
 	
 	return newGame
 end
 
 
-function GameObject:NextTurn()
-	turn_remote:FireClient(self.CurrentTurn, self)
+function GameObject:NextTurn(id)
+	turn_remote:FireClient(self.Players[self.CurrentTurn][1], id, self.Players[self.CurrentTurn][2])
 end
 
 
