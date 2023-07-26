@@ -3,60 +3,41 @@ local start_remote = game:GetService("ReplicatedStorage").Start
 local turn_remote = game:GetService("ReplicatedStorage").Turn
 local turn_function = game:GetService("ReplicatedStorage").TurnFunction
 
-local finished = false
-
-local players
-
-local colors = {Color3.new(1, 0, 0), Color3.new(1, 1, 0)}
-
-local board = {
-	
-	{},
-	{},
-	{},
-	{},
-	{},
-	{},
-	{}
-	
-}
+local GameObject = require(game:GetService("ServerScriptService").GameObject)
 
 
+local iteration = 0
+local board_dict = {}
 
-local function player_turn(order)
-	
-	turn_remote:FireClient(players[order], colors[order], board)
-
-	repeat wait() until finished
-
-	finished = false
-	
-end
-
-
-local function game_loop(player)
-	
-	players = {player, player}
-	
-	for i = 0, 42 do
-		player_turn(1)
-		player_turn(2)
-		print('hi')
-	end
-	
-	print(board)
-	
-end
 
 
 start_remote.OnServerEvent:Connect(function(player)
-	--player1(player)
-	game_loop(player)
+	
+	local new_game = GameObject.new(player, player, game.Workspace.Unit)
+	
+	--make a new id (simple linearish function helps provide some concealment so exploiters can't send random ids of other games)
+	local new_id = 2 * iteration + (iteration % 4 + 92)
+
+	iteration += 1
+
+	board_dict[new_id] = new_game
+		
+	new_game:NextTurn(new_id)
+
 end)
 
-turn_remote.OnServerEvent:Connect(function(player, column)
-	finished = true
+turn_remote.OnServerEvent:Connect(function(player, id, drop_column)
 	
-	table.insert(board[column], table.find(players, player))
+	--find the players associated game object through its given id
+	local game_object = board_dict[id]
 	
+	--execute the turn in the board matrix(server side)
+	table.insert(game_object.BoardMatrix[drop_column], game_object.CurrentTurn)
+	
+	--check if someone won, fi they didnt then call next turn
+	game_object.CurrentTurn = (game_object.CurrentTurn % 2) + 1
+	
+	--call the next player's turn
+	game_object:NextTurn(id)
+
 end)
