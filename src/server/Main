@@ -3,27 +3,48 @@ local start_remote = game:GetService("ReplicatedStorage").Start
 local turn_remote = game:GetService("ReplicatedStorage").Turn
 local turn_function = game:GetService("ReplicatedStorage").TurnFunction
 
-local progress = false
+local finished = false
+
+local players
+
+local colors = {Color3.new(1, 0, 0), Color3.new(1, 1, 0)}
+
+local board = {
+	
+	{},
+	{},
+	{},
+	{},
+	{},
+	{},
+	{}
+	
+}
 
 
-local function player1(player)
+
+local function player_turn(order)
 	
-	turn_remote:FireClient(player)
-	--local column = turn_function:InvokeClient()
-	
-	repeat wait() until progress
-	
-	progress = false
+	turn_remote:FireClient(players[order], colors[order], board)
+
+	repeat wait() until finished
+
+	finished = false
 	
 end
 
 
 local function game_loop(player)
 	
+	players = {player, player}
+	
 	for i = 0, 42 do
-		player1(player)
+		player_turn(1)
+		player_turn(2)
 		print('hi')
 	end
+	
+	print(board)
 	
 end
 
@@ -33,6 +54,9 @@ start_remote.OnServerEvent:Connect(function(player)
 	game_loop(player)
 end)
 
-turn_remote.OnServerEvent:Connect(function()
-	progress = true
+turn_remote.OnServerEvent:Connect(function(player, column)
+	finished = true
+	
+	table.insert(board[column], table.find(players, player))
+	
 end)
