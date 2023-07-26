@@ -1,0 +1,57 @@
+local turn_remote = game:GetService("ReplicatedStorage").Turn
+
+local GameObject = {}
+
+GameObject.__index = GameObject
+
+
+function GameObject.new(player1, player2, unit)
+	local newGame = {}
+	setmetatable(newGame, GameObject)
+	
+	newGame.Player1 = player1
+	newGame.Player2 = player2
+	newGame.BoardMatrix = {
+		{},
+		{},
+		{},
+		{},
+		{},
+		{},
+		{}
+	}
+	newGame.Unit = unit
+	newGame.CurrentTurn = player1
+	
+	return newGame
+end
+
+
+function GameObject:NextTurn()
+	turn_remote:FireClient(self.CurrentTurn, self)
+end
+
+
+
+return GameObject
+
+--players get in a queue
+
+--once 2 players in queue
+
+--make new game object with those 2 players as parameters
+
+--board matrix is a variable
+
+--have methods to call a player turn whcih will send a remote event to the player
+
+--player sends reote event back signaling end of their return
+	
+--	main script to catch these client calls
+
+--game object also passed as a paramaeter whenever a remote event is called
+
+
+--when server catches client call, it takes the game object passed and calls the next turn of the next player
+
+--this is done after checking if the board state is finished or not
