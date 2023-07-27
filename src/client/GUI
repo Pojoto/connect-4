@@ -1,0 +1,35 @@
+
+local play_human_remote = game:GetService("ReplicatedStorage").PlayHuman
+
+local intro_frame = script.Parent:WaitForChild("IntroGui").IntroFrame
+local play_human_button = intro_frame.PlayHuman
+local waiting_text = intro_frame.WaitingText
+
+local play_human_remote = game:GetService("ReplicatedStorage").PlayHuman
+
+
+local start
+local index = 1
+local initial = waiting_text.Text
+local dots = {".", "..", "..."}
+
+play_human_button.MouseButton1Click:Connect(function()
+	
+	play_human_remote:FireServer()
+end)
+
+
+play_human_remote.OnClientEvent:Connect(function(inc_start)
+	start = inc_start
+	if start then
+		intro_frame.Visible = false
+	else
+		waiting_text.Visible = true
+		while start == false do
+			waiting_text.Text = initial .. string.rep(".", index)
+			index = (index % 3) + 1
+			wait(0.5)
+		end
+	end
+
+end)
