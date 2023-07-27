@@ -3,9 +3,12 @@ local play_human_remote = game:GetService("ReplicatedStorage").PlayHuman
 
 local intro_frame = script.Parent:WaitForChild("IntroGui").IntroFrame
 local play_human_button = intro_frame.PlayHuman
+local play_ai_button = intro_frame.PlayAI
+local play_self_button = intro_frame.PlaySelf
 local waiting_text = intro_frame.WaitingText
 
 local play_human_remote = game:GetService("ReplicatedStorage").PlayHuman
+local play_self_remote = game:GetService("ReplicatedStorage").PlaySelf
 
 
 local start
@@ -14,8 +17,11 @@ local initial = waiting_text.Text
 local dots = {".", "..", "..."}
 
 play_human_button.MouseButton1Click:Connect(function()
-	
 	play_human_remote:FireServer()
+end)
+
+play_self_button.MouseButton1Click:Connect(function()
+	play_self_remote:FireServer()
 end)
 
 
@@ -33,3 +39,4 @@ play_human_remote.OnClientEvent:Connect(function(inc_start)
 	end
 
 end)
+

@@ -1,29 +1,104 @@
 
-local start_remote = game:GetService("ReplicatedStorage").Start
+local play_human_remote = game:GetService("ReplicatedStorage").PlayHuman
+local play_self_remote = game:GetService("ReplicatedStorage").PlaySelf
 local turn_remote = game:GetService("ReplicatedStorage").Turn
-local turn_function = game:GetService("ReplicatedStorage").TurnFunction
+local camera_remote = game:GetService("ReplicatedStorage").Camera
 
 local GameObject = require(game:GetService("ServerScriptService").GameObject)
+local unit = game:GetService("ServerStorage").Unit
+local token = game:GetService("ReplicatedStorage").Token
 
+local SPACING = 8
+local HEIGHT = 25
+
+local columns_x = {
+
+	-3 * SPACING,
+	-2 * SPACING,
+	-SPACING,
+	0,
+	SPACING,
+	2 * SPACING,
+	3 * SPACING
+
+}
 
 local iteration = 0
 local board_dict = {}
 
+--contians the player of the next person to be paired to a game
+local queue = nil
 
 
-start_remote.OnServerEvent:Connect(function(player)
+local function drop_token(center, drop_column, color)
+	local clone = token:Clone()
+	clone.Position = Vector3.new(center.Position.X -  columns_x[drop_column], center.Position.Y + HEIGHT, center.Position.Z) 
+	clone.Color = color
+	clone.Anchored = false
+	clone.Parent = game.Workspace
+end
+
+play_human_remote.OnServerEvent:Connect(function(player)
 	
-	local new_game = GameObject.new(player, player, game.Workspace.Unit)
-	
-	--make a new id (simple linearish function helps provide some concealment so exploiters can't send random ids of other games)
-	local new_id = 2 * iteration + (iteration % 4 + 92)
-
-	iteration += 1
-
-	board_dict[new_id] = new_game
+	if queue then --check if queue is empty
 		
-	new_game:NextTurn(new_id)
+		--check for same player entering queue
+		if queue ~= player then
+	
+			local new_unit = unit:Clone()
+			unit:MoveTo(unit.PrimaryPart.Position + Vector3.new(0, 0, 200 * iteration))
+			new_unit.Parent = game.Workspace
+			
+			local center = new_unit.Board.Center
+			
+			--fire clients to hide intro frame
+			play_human_remote:FireClient(queue, true)
+			play_human_remote:FireClient(player, true)
+			
+			--fire clients to move camera into unit
+			camera_remote:FireClient(queue, center)
+			camera_remote:FireClient(player, center)
 
+			local new_game = GameObject.new(queue, player, new_unit)
+			queue = nil
+
+			--make a new id (simple linearish function helps provide some concealment so exploiters can't send random ids of other games)
+			local new_id = 2 * iteration + (iteration % 4 + 92)
+
+			iteration += 1
+			
+			--add the game object and its id to the database
+			board_dict[new_id] = new_game
+
+			new_game:NextTurn(new_id, center, new_game.BoardMatrix)
+		end
+		
+	else --if queue is empty
+		queue = player
+		play_human_remote:FireClient(player, false)
+	end
+end)
+
+play_self_remote.OnServerEvent:Connect(function(player)
+	local new_unit = unit:Clone()
+	unit:MoveTo(unit.PrimaryPart.Position + Vector3.new(0, 0, 200 * iteration))
+	new_unit.Parent = game.Workspace
+
+	local center = new_unit.Board.Center
+
+	--fire clients to hide intro frame
+	play_human_remote:FireClient(player, true)
+
+	--fire clients to move camera into unit
+	camera_remote:FireClient(player, center)
+
+	local new_game = GameObject.new(player, player, new_unit)
+	
+	local new_id = 2 * iteration + (iteration % 4 + 92)
+	iteration += 1
+	board_dict[new_id] = new_game
+	
+	new_game:NextTurn(new_id, center, new_game.BoardMatrix)
 end)
 
 turn_remote.OnServerEvent:Connect(function(player, id, drop_column)
@@ -31,13 +106,20 @@ turn_remote.OnServerEvent:Connect(function(player, id, drop_column)
 	--find the players associated game object through its given id
 	local game_object = board_dict[id]
 	
-	--execute the turn in the board matrix(server side)
+	--find the center associated with the unit of the game object
+	local center = game_object.Unit.PrimaryPart
+	
+	--execute the turn in the board matrix and physically(server side)
 	table.insert(game_object.BoardMatrix[drop_column], game_object.CurrentTurn)
+	drop_token(center, drop_column, game_object.Players[game_object.CurrentTurn][2])
 	
 	--check if someone won, fi they didnt then call next turn
 	game_object.CurrentTurn = (game_object.CurrentTurn % 2) + 1
 	
+	wait(0.5)
+	
 	--call the next player's turn
-	game_object:NextTurn(id)
+	game_object:NextTurn(id, center, game_object.BoardMatrix)
 
 end)
+
