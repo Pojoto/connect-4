@@ -38,6 +38,93 @@ local function drop_token(center, drop_column, color)
 	clone.Parent = game.Workspace
 end
 
+local function get_sequences(board, drop_row, drop_column)
+	
+	local row = {}
+		
+	for i = 1, #board do
+		table.insert(row, board[i][drop_row])
+	end
+	
+	local col = board[drop_column]
+	
+	--diagonal initially contains the current token (token just dropped)
+	local incline_diag = {board[drop_column][drop_row]}
+	
+	--back and front go search opposite directions in the diagonal
+	local i = 1
+	--this statement returns nil if the first indexed chunk is nil. if it's not nil then it will continue and return the next indexed chunk.
+	--this prevents a 'index nil with' error
+	local back = if board[drop_column - i] then board[drop_column - i][drop_row - i] else nil
+	local front = if board[drop_column + i] then board[drop_column + i][drop_row + i] else nil
+	
+	while back and front do
+		if back then
+			table.insert(incline_diag, 1, back)
+			back = if board[drop_column - i - 1] then board[drop_column - i - 1][drop_row - i - 1] else nil
+		end
+		
+		if front then
+			table.insert(incline_diag, front) 
+			front = if board[drop_column + i + 1] then board[drop_column + i + 1][drop_row + i + 1] else nil
+		end
+		
+		i += 1
+	end
+	
+	local decline_diag = {board[drop_column][drop_row]}
+	i = 1
+	back = if board[drop_column - i] then board[drop_column - i][drop_row + i] else nil
+	front = if board[drop_column + i] then board[drop_column + i][drop_row - i] else nil
+	
+	while back or front do
+		if back then
+			table.insert(decline_diag, 1, back)
+			back = if board[drop_column - i - 1] then board[drop_column - i - 1][drop_row + i + 1] else nil
+		end
+
+		if front then
+			table.insert(decline_diag, front) 
+			front = if board[drop_column + i + 1] then board[drop_column + i + 1][drop_row - i - 1] else nil
+		end
+
+		i += 1
+	end
+	
+	return {row, col, incline_diag, decline_diag}
+	
+end
+
+local function four_in_a_row(sequence)
+	for i = 1, #sequence do
+		for j = i + 1, #sequence do
+			if sequence[i] ~= sequence[j] then
+				break
+			end
+			if j - i == 3 then
+				return true, sequence[j]
+			end
+		end
+	end
+	return false, nil
+end
+
+local function is_game_over(board, drop_column)
+	local drop_row = #board[drop_column]
+	
+	local sequences = get_sequences(board, drop_row, drop_column)
+	
+	for i, sequence in ipairs(sequences) do
+		local connection, turn = four_in_a_row(sequence)
+		if connection then
+			return true, turn
+		end
+	end
+	
+	return false, nil
+	
+end
+
 play_human_remote.OnServerEvent:Connect(function(player)
 	
 	if queue then --check if queue is empty
@@ -46,14 +133,15 @@ play_human_remote.OnServerEvent:Connect(function(player)
 		if queue ~= player then
 	
 			local new_unit = unit:Clone()
-			unit:MoveTo(unit.PrimaryPart.Position + Vector3.new(0, 0, 200 * iteration))
+			
 			new_unit.Parent = game.Workspace
+			new_unit:PivotTo(CFrame.new(new_unit.PrimaryPart.Position + Vector3.new(0, 0, 200 * iteration)))
 			
 			local center = new_unit.Board.Center
 			
 			--fire clients to hide intro frame
-			play_human_remote:FireClient(queue, true)
-			play_human_remote:FireClient(player, true)
+			play_human_remote:FireClient(queue, true, player)
+			play_human_remote:FireClient(player, true, queue)
 			
 			--fire clients to move camera into unit
 			camera_remote:FireClient(queue, center)
@@ -81,13 +169,13 @@ end)
 
 play_self_remote.OnServerEvent:Connect(function(player)
 	local new_unit = unit:Clone()
-	unit:MoveTo(unit.PrimaryPart.Position + Vector3.new(0, 0, 200 * iteration))
 	new_unit.Parent = game.Workspace
+	new_unit:PivotTo(CFrame.new(new_unit.PrimaryPart.Position + Vector3.new(0, 0, 200 * iteration)))
 
 	local center = new_unit.Board.Center
 
 	--fire clients to hide intro frame
-	play_human_remote:FireClient(player, true)
+	play_human_remote:FireClient(player, true, player)
 
 	--fire clients to move camera into unit
 	camera_remote:FireClient(player, center)
@@ -112,6 +200,12 @@ turn_remote.OnServerEvent:Connect(function(player, id, drop_column)
 	--execute the turn in the board matrix and physically(server side)
 	table.insert(game_object.BoardMatrix[drop_column], game_object.CurrentTurn)
 	drop_token(center, drop_column, game_object.Players[game_object.CurrentTurn][2])
+	
+	local finished, winner = is_game_over(game_object.BoardMatrix, drop_column)
+	
+	if finished then
+		print(winner)
+	end
 	
 	--check if someone won, fi they didnt then call next turn
 	game_object.CurrentTurn = (game_object.CurrentTurn % 2) + 1
