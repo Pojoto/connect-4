@@ -41,107 +41,6 @@ local function drop_token(drop_column, game_object)
 	clone.Parent = game_object.Unit.Tokens
 end
 
-local function get_sequences(board, drop_row, drop_column)
-	
-	local row = {}
-		
-	for i = 1, #board do
-		--if there is an empty space in the row, we still need to add something to the row or else the gap disappears,
-		--this can result in xxx_x being counted as four in a row. 0 does not match with any other so it's guarnateed not to be 4 ina  row
-		local to_insert = if board[i][drop_row] then board[i][drop_row] else 0
-		table.insert(row, to_insert)
-	end
-	
-	local col = board[drop_column]
-	
-	--diagonal initially contains the current token (token just dropped)
-	local incline_diag = {board[drop_column][drop_row]}
-	
-	--back and front go search opposite directions in the diagonal
-	local i = 1
-	--this statement returns nil if the first indexed chunk is nil. if it's not nil then it will continue and return the next indexed chunk.
-	--this prevents a 'index nil with' error
-	local back = if board[drop_column - i] then board[drop_column - i][drop_row - i] else nil
-	local front = if board[drop_column + i] then board[drop_column + i][drop_row + i] else nil
-	
-	while back or front do
-		if back then
-			table.insert(incline_diag, 1, back)
-			back = if board[drop_column - i - 1] then board[drop_column - i - 1][drop_row - i - 1] else nil
-		end
-		
-		if front then
-			table.insert(incline_diag, front) 
-			front = if board[drop_column + i + 1] then board[drop_column + i + 1][drop_row + i + 1] else nil
-		end
-		
-		i += 1
-	end
-	
-	local decline_diag = {board[drop_column][drop_row]}
-	i = 1
-	back = if board[drop_column - i] then board[drop_column - i][drop_row + i] else nil
-	front = if board[drop_column + i] then board[drop_column + i][drop_row - i] else nil
-	
-	while back or front do
-		if back then
-			table.insert(decline_diag, 1, back)
-			back = if board[drop_column - i - 1] then board[drop_column - i - 1][drop_row + i + 1] else nil
-		end
-
-		if front then
-			table.insert(decline_diag, front) 
-			front = if board[drop_column + i + 1] then board[drop_column + i + 1][drop_row - i - 1] else nil
-		end
-
-		i += 1
-	end
-	
-	return {row, col, incline_diag, decline_diag}
-	
-end
-
-local function is_four_in_a_row(sequence)
-	for i = 1, #sequence do
-		for j = i + 1, #sequence do
-			if sequence[j] == 0 or sequence[i] ~= sequence[j] then
-				break
-			end
-			if j - i == 3 then
-				return true, sequence[j]
-			end
-		end
-	end
-	return false, nil
-end
-
-local function is_game_over(board, drop_column)
-	local drop_row = #board[drop_column]
-	
-	if drop_row == 6 then
-		local spaces = 0
-		--check if all spaces are occupied - if it is then game over
-		for i = 1, #board do
-			spaces += #board[i]
-		end
-		if spaces == 42 then
-			return true, nil
-		end
-	end
-	
-	local sequences = get_sequences(board, drop_row, drop_column)
-	
-	for i, sequence in ipairs(sequences) do
-		local connection, winner = is_four_in_a_row(sequence)
-		if connection then
-			return true, winner
-		end
-	end
-	
-	return false, nil
-	
-end
-
 play_human_remote.OnServerEvent:Connect(function(player)
 	
 	if queue then --check if queue is empty
@@ -216,19 +115,20 @@ turn_remote.OnServerEvent:Connect(function(player, id, drop_column)
 	table.insert(game_object.BoardMatrix[drop_column], game_object.CurrentTurn)
 	drop_token(drop_column, game_object)
 	
-	local finished, winner_turn = is_game_over(game_object.BoardMatrix, drop_column)
+	local finished, winner, loser = game_object:IsGameOver(drop_column)
 		
 	if finished then
 		--the game is over (connect 4 found)
 		wait(1)
 		--check if game was tie (if turn was returned nil)
-		if winner_turn then
-			--fire client to winner that he won, fire client to loser that he lost
-			player_state_remote:FireClient(game_object.Players[winner_turn % 2 + 1][1], "game over", false)
-			player_state_remote:FireClient(game_object.Players[winner_turn][1], "game over", true)
+		if winner and loser then
+			--fire client to winner that he won, fire client to loser that he lost (current turn is winner turn)
+			player_state_remote:FireClient(loser, "game over", false)
+			player_state_remote:FireClient(winner, "game over", true)
 		else
-			player_state_remote:FireClient(game_object.Players[winner_turn % 2 + 1][1], "game over", nil)
-			player_state_remote:FireClient(game_object.Players[winner_turn][1], "game over", nil)
+			--game was a tie
+			player_state_remote:FireClient(loser, "game over", nil)
+			player_state_remote:FireClient(winner, "game over", nil)
 		end
 		wait(2)
 		game_object:Destroy()

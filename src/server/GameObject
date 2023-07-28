@@ -1,3 +1,5 @@
+local Sequence = require(game:GetService("ServerScriptService").Sequence)
+
 local turn_remote = game:GetService("ReplicatedStorage").Turn
 
 local GameObject = {}
@@ -35,6 +37,34 @@ function GameObject:NextTurn(id)
 	wait(0.5)
 	
 	turn_remote:FireClient(self.Players[self.CurrentTurn][1], id, self)
+end
+
+function GameObject:IsGameOver(drop_column)
+	local board = self.BoardMatrix
+	local drop_row = #board[drop_column]
+	
+	--if the dropped column is full
+	if drop_row == 6 then
+		local spaces = 0
+		--check if all spaces are occupied - if it is then game over
+		for i = 1, #board do
+			spaces += #board[i]
+		end
+		if spaces == 42 then
+			return true, nil, nil
+		end
+	end
+
+	local sequences = Sequence.get_sequences(board, drop_row, drop_column)
+
+	for i, sequence in ipairs(sequences) do
+		local is_four_in_a_row, winner_turn = Sequence.check_four_in_a_row(sequence)
+		if is_four_in_a_row then
+			return true, self.Players[winner_turn][1], self.Players[winner_turn % 2 + 1][1]
+		end
+	end
+
+	return false, nil, nil
 end
 
 function GameObject:Destroy()

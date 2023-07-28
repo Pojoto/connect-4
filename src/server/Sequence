@@ -1,0 +1,80 @@
+local Sequence = {}
+
+function Sequence.get_sequences(board, drop_row, drop_column)
+
+	local row = {}
+
+	for i = 1, #board do
+		--if there is an empty space in the row, we still need to add something to the row or else the gap disappears,
+		--this can result in xxx_x being counted as four in a row. 0 does not match with any other so it's guarnateed not to be 4 ina  row
+		local to_insert = if board[i][drop_row] then board[i][drop_row] else 0
+		table.insert(row, to_insert)
+	end
+
+	local col = board[drop_column]
+
+	--diagonal initially contains the current token (token just dropped)
+	local incline_diag = {board[drop_column][drop_row]}
+
+	--back and front go search opposite directions in the diagonal
+	local i = 1
+	--this statement returns nil if the first indexed chunk is nil. if it's not nil then it will continue and return the next indexed chunk.
+	--this prevents a 'index nil with' error
+	local back = if board[drop_column - i] then board[drop_column - i][drop_row - i] else nil
+	local front = if board[drop_column + i] then board[drop_column + i][drop_row + i] else nil
+
+	while back or front do
+		if back then
+			table.insert(incline_diag, 1, back)
+			back = if board[drop_column - i - 1] then board[drop_column - i - 1][drop_row - i - 1] else nil
+		end
+
+		if front then
+			table.insert(incline_diag, front) 
+			front = if board[drop_column + i + 1] then board[drop_column + i + 1][drop_row + i + 1] else nil
+		end
+
+		i += 1
+	end
+
+	local decline_diag = {board[drop_column][drop_row]}
+	i = 1
+	back = if board[drop_column - i] then board[drop_column - i][drop_row + i] else nil
+	front = if board[drop_column + i] then board[drop_column + i][drop_row - i] else nil
+
+	while back or front do
+		if back then
+			table.insert(decline_diag, 1, back)
+			back = if board[drop_column - i - 1] then board[drop_column - i - 1][drop_row + i + 1] else nil
+		end
+
+		if front then
+			table.insert(decline_diag, front) 
+			front = if board[drop_column + i + 1] then board[drop_column + i + 1][drop_row - i - 1] else nil
+		end
+
+		i += 1
+	end
+
+	return {row, col, incline_diag, decline_diag}
+
+end
+
+
+function Sequence.check_four_in_a_row(sequence)
+	for i = 1, #sequence do
+		for j = i + 1, #sequence do
+			if sequence[j] == 0 or sequence[i] ~= sequence[j] then
+				break
+			end
+			if j - i == 3 then
+				return true, sequence[j]
+			end
+		end
+	end
+	return false, nil
+end
+
+
+
+return Sequence
