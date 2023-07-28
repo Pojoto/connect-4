@@ -1,0 +1,30 @@
+local PlayerState = {}
+
+
+function PlayerState.intro_state()
+	
+	local player = game:GetService("Players").LocalPlayer
+	
+	local gui = player.PlayerGui
+	
+	local uis = gui:GetDescendants()
+	
+	--make all guis invisible
+	for i, ui in ipairs(uis) do
+		if ui:IsA("Frame") then
+			ui.Visible = false
+		end
+	end
+	
+	--make intro frame visible
+	gui.IntroGui.IntroFrame.Visible = true
+	
+	local camera = workspace.CurrentCamera
+	local intro = game.Workspace.IntroScene.IntroCamera
+
+	camera.CFrame = intro.CFrame
+	
+end
+
+
+return PlayerState
