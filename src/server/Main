@@ -3,6 +3,7 @@ local play_human_remote = game:GetService("ReplicatedStorage").PlayHuman
 local play_self_remote = game:GetService("ReplicatedStorage").PlaySelf
 local turn_remote = game:GetService("ReplicatedStorage").Turn
 local camera_remote = game:GetService("ReplicatedStorage").Camera
+local game_over_remote = game:GetService("ReplicatedStorage").GameOver
 
 local GameObject = require(game:GetService("ServerScriptService").GameObject)
 local unit = game:GetService("ServerStorage").Unit
@@ -201,19 +202,28 @@ turn_remote.OnServerEvent:Connect(function(player, id, drop_column)
 	table.insert(game_object.BoardMatrix[drop_column], game_object.CurrentTurn)
 	drop_token(center, drop_column, game_object.Players[game_object.CurrentTurn][2])
 	
-	local finished, winner = is_game_over(game_object.BoardMatrix, drop_column)
-	
+	local finished, winner_turn = is_game_over(game_object.BoardMatrix, drop_column)
+		
 	if finished then
-		print(winner)
+		--the game is over (connect 4 found)
+		wait(1)
+		--fire client to winner that he won, fire client to loser that he lost
+		game_over_remote:FireClient(game_object.Players[winner_turn][1], true)
+		game_over_remote:FireClient(game_object.Players[winner_turn % 2 + 1][1], false)
+		
+		game_object = nil
+		
+	else
+		--check if someone won, if they didnt then call next turn
+		game_object.CurrentTurn = (game_object.CurrentTurn % 2) + 1
+
+		wait(0.5)
+
+		--call the next player's turn
+		game_object:NextTurn(id, center, game_object.BoardMatrix)
 	end
 	
-	--check if someone won, fi they didnt then call next turn
-	game_object.CurrentTurn = (game_object.CurrentTurn % 2) + 1
-	
-	wait(0.5)
-	
-	--call the next player's turn
-	game_object:NextTurn(id, center, game_object.BoardMatrix)
+
 
 end)
 

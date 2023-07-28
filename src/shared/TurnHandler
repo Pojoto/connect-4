@@ -1,11 +1,14 @@
 
 local turn_remote = game:GetService('ReplicatedStorage'):WaitForChild("Turn")
 local turn_function = game:GetService("ReplicatedStorage").TurnFunction
+local timer_remote = game:GetService("ReplicatedStorage").Timer
 
 local runservice = game:GetService("RunService")
 
-
 local player = game:GetService("Players").LocalPlayer
+
+local game_frame = player.PlayerGui:WaitForChild("GameGui").GameFrame
+local timer = game_frame.Timer
 
 local mouse = player:GetMouse()
 
@@ -26,8 +29,6 @@ columns_x = {
 	3 * SPACING
 	
 }
-
-
 
 
 local token
@@ -89,15 +90,15 @@ local function finish()
 		connection:Disconnect()
 	end
 	
+	game_frame.Self.BackgroundColor3 = Color3.new(1, 1, 1)
+	game_frame.OtherPlayer.BackgroundColor3 = Color3.new(0.25, 1, 0.25)
+	
 	turn_remote:FireServer(id, drop_column)
 	
 end
 
 --this function is called when a mouse click happens > disconnect all connections and drop the token
 local function click()
-	
-	print(board)
-	print(#board[drop_column])
 	
 	--checks if the move is legal
 	if #board[drop_column] < 6 then
@@ -116,6 +117,8 @@ end
 
 local function player_turn()
 	
+	timer.Text = 10
+	
 	--establish function connections (click event and mouse tracking)
 	connection = mouse.Button1Down:Connect(click)
 	runservice:BindToRenderStep("mouse_bind", 1, hover_token)
@@ -124,6 +127,10 @@ local function player_turn()
 		if clicked then
 			clicked = false
 			return
+		end
+		if i % 10 == 0 then
+			timer.Text = i / 10
+			--timer_remote:FireServer(i / 10)
 		end
 		wait(0.1)
 	end
@@ -141,6 +148,9 @@ turn_remote.OnClientEvent:Connect(function(incoming_id, color, incoming_center, 
 	board = incoming_board
 	
 	find_mouse_column()
+	
+	game_frame.Self.BackgroundColor3 = Color3.new(0.25, 1, 0.25)
+	game_frame.OtherPlayer.BackgroundColor3 = Color3.new(1, 1, 1)
 	
 	--create token
 	token = game:GetService("ReplicatedStorage").Token:Clone()
