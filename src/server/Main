@@ -32,12 +32,13 @@ local board_dict = {}
 local queue = nil
 
 
-local function drop_token(center, drop_column, color)
+local function drop_token(drop_column, game_object)
+	local center = game_object.Unit.Board.Center
 	local clone = token:Clone()
 	clone.Position = Vector3.new(center.Position.X -  columns_x[drop_column], center.Position.Y + HEIGHT, center.Position.Z) 
-	clone.Color = color
+	clone.Color = game_object.Players[game_object.CurrentTurn][2]
 	clone.Anchored = false
-	clone.Parent = game.Workspace
+	clone.Parent = game_object.Unit.Tokens
 end
 
 local function get_sequences(board, drop_row, drop_column)
@@ -170,7 +171,7 @@ play_human_remote.OnServerEvent:Connect(function(player)
 			--add the game object and its id to the database
 			board_dict[new_id] = new_game
 
-			new_game:NextTurn(new_id, center, new_game.BoardMatrix)
+			new_game:NextTurn(new_id)
 		end
 		
 	else --if queue is empty
@@ -213,7 +214,7 @@ turn_remote.OnServerEvent:Connect(function(player, id, drop_column)
 	
 	--execute the turn in the board matrix and physically(server side)
 	table.insert(game_object.BoardMatrix[drop_column], game_object.CurrentTurn)
-	drop_token(center, drop_column, game_object.Players[game_object.CurrentTurn][2])
+	drop_token(drop_column, game_object)
 	
 	local finished, winner_turn = is_game_over(game_object.BoardMatrix, drop_column)
 		
@@ -236,10 +237,8 @@ turn_remote.OnServerEvent:Connect(function(player, id, drop_column)
 		--check if someone won, if they didnt then call next turn
 		game_object.CurrentTurn = (game_object.CurrentTurn % 2) + 1
 
-		wait(0.5)
-
 		--call the next player's turn
-		game_object:NextTurn(id, center, game_object.BoardMatrix)
+		game_object:NextTurn(id)
 	end
 	
 

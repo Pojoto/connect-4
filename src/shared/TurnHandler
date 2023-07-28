@@ -1,6 +1,5 @@
 
 local turn_remote = game:GetService('ReplicatedStorage'):WaitForChild("Turn")
-local turn_function = game:GetService("ReplicatedStorage").TurnFunction
 local timer_remote = game:GetService("ReplicatedStorage").Timer
 
 local runservice = game:GetService("RunService")
@@ -83,7 +82,6 @@ local function finish()
 	
 	--token.CanCollide = true
 	--token.Anchored = false
-	token:Destroy()
 	runservice:UnbindFromRenderStep("mouse_bind")
 
 	if connection then
@@ -94,6 +92,9 @@ local function finish()
 	game_frame.OtherPlayer.BackgroundColor3 = Color3.new(0.25, 1, 0.25)
 	
 	turn_remote:FireServer(id, drop_column)
+	token.Position = Vector3.new(center.Position.X - columns_x[drop_column], token.Position.Y, token.Position.Z)
+	wait(0.1)
+	token:Destroy()
 	
 end
 
@@ -141,11 +142,11 @@ end
 
 
 --server has told us it is our turn
-turn_remote.OnClientEvent:Connect(function(incoming_id, color, incoming_center, incoming_board)
+turn_remote.OnClientEvent:Connect(function(incoming_id, game_object)--color, incoming_center, incoming_board)
 	
-	id = incoming_id
-	center = incoming_center
-	board = incoming_board
+	id = incoming_id	
+	center = game_object.Unit.Board.Center
+	board = game_object.BoardMatrix
 	
 	find_mouse_column()
 	
@@ -157,7 +158,7 @@ turn_remote.OnClientEvent:Connect(function(incoming_id, color, incoming_center, 
 	token.Anchored = true
 	token.CanCollide = false
 	token.Position = Vector3.new(center.Position.X - columns_x[drop_column], center.Position.Y + HEIGHT, center.Position.Z)
-	token.Color = color
+	token.Color = game_object.Players[game_object.CurrentTurn][2]
 	token.Parent = game.Workspace
 	
 	player_turn()
