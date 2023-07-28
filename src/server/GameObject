@@ -30,10 +30,18 @@ end
 
 
 function GameObject:NextTurn(id)
-	turn_remote:FireClient(self.Players[self.CurrentTurn][1], id, self.Players[self.CurrentTurn][2])
+	
+	--add delay between turns
+	wait(0.5)
+	
+	turn_remote:FireClient(self.Players[self.CurrentTurn][1], id, self)
 end
 
-
+function GameObject:Destroy()
+	self.Unit:Destroy()
+	self.BoardMatrix = nil
+	self.Players = nil
+end
 
 return GameObject
 
