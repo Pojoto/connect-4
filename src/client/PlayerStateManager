@@ -1,0 +1,50 @@
+
+--this script catches onclientevents (fires from server) to switch the local player into a state. this means camera/gui updating
+local player = game:GetService("Players").LocalPlayer
+local PlayerState = require(game:GetService("ReplicatedFirst").PlayerState)
+
+local player_state_module = game:GetService("ReplicatedStorage"):WaitForChild("PlayerState")
+local state = nil
+
+local waiting_text = player.PlayerGui:WaitForChild("IntroGui").IntroFrame.IntroMenu.WaitingText
+local index = 1
+local initial = waiting_text.Text
+local dots = {".", "..", "..."}
+
+--start the game off in intro state
+PlayerState.intro_state()
+
+
+local function processor(inc_state, param1, param2)
+	state = inc_state
+	if state == "intro" then
+		PlayerState.intro_state()
+	elseif state == "game" then
+		local unit_center = param1
+		local other_player = param2
+		PlayerState.game_state(unit_center, other_player)
+	elseif state == "game over" then
+		local is_winner = param1
+		PlayerState.game_over_state(is_winner)
+		PlayerState.intro_state()
+	elseif state == "in queue" then
+		--in queue processing is done here without module script
+		waiting_text.Visible = true
+		while state == "in queue" do
+			waiting_text.Text = initial .. string.rep(".", index)
+			index = (index % 3) + 1
+			wait(0.5)
+		end
+		waiting_text.Visible = false
+	end
+end
+
+
+player_state_module.OnClientEvent:Connect(processor)
+
+
+
+
+
+
+

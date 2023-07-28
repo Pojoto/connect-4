@@ -1,20 +1,22 @@
 
-local play_human_remote = game:GetService("ReplicatedStorage").PlayHuman
+local player = game:GetService("Players").LocalPlayer
 
 local intro_frame = script.Parent:WaitForChild("IntroGui").IntroFrame
-local play_human_button = intro_frame.PlayHuman
-local play_ai_button = intro_frame.PlayAI
-local play_self_button = intro_frame.PlaySelf
-local waiting_text = intro_frame.WaitingText
+local intro_menu = intro_frame.IntroMenu
+local play_human_button = intro_menu.PlayHuman
+local play_ai_button = intro_menu.PlayAI
+local play_self_button = intro_menu.PlaySelf
+local waiting_text = intro_menu.WaitingText
+
+local game_frame = script.Parent:WaitForChild("GameGui").GameFrame
+local timer = game_frame.Timer
+
+local game_over_frame = script.Parent:WaitForChild("GameGui").GameOverFrame
+local result_text = game_over_frame.ResultText
 
 local play_human_remote = game:GetService("ReplicatedStorage").PlayHuman
 local play_self_remote = game:GetService("ReplicatedStorage").PlaySelf
-
-
-local start
-local index = 1
-local initial = waiting_text.Text
-local dots = {".", "..", "..."}
+local game_over_remote = game:GetService("ReplicatedStorage").GameOver
 
 play_human_button.MouseButton1Click:Connect(function()
 	play_human_remote:FireServer()
@@ -23,20 +25,3 @@ end)
 play_self_button.MouseButton1Click:Connect(function()
 	play_self_remote:FireServer()
 end)
-
-
-play_human_remote.OnClientEvent:Connect(function(inc_start)
-	start = inc_start
-	if start then
-		intro_frame.Visible = false
-	else
-		waiting_text.Visible = true
-		while start == false do
-			waiting_text.Text = initial .. string.rep(".", index)
-			index = (index % 3) + 1
-			wait(0.5)
-		end
-	end
-
-end)
-

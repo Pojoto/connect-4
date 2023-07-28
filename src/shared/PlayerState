@@ -1,29 +1,81 @@
-local PlayerState = {}
+local player = game:GetService("Players").LocalPlayer
+
+local gui = player.PlayerGui
+
+local intro_gui = gui:WaitForChild("IntroGui")
+local intro_frame = intro_gui.IntroFrame
+local intro_menu = intro_frame.IntroMenu
+local waiting_text = intro_menu.WaitingText
+
+local game_gui = gui:WaitForChild("GameGui")
+local game_frame = game_gui.GameFrame
+local game_over_frame = game_gui.GameOverFrame
+local result_text = game_over_frame.ResultText
+
+local camera_remote = game:GetService("ReplicatedStorage").Camera
+repeat wait() until workspace.CurrentCamera
+local camera = workspace.CurrentCamera
 
 
-function PlayerState.intro_state()
-	
-	local player = game:GetService("Players").LocalPlayer
-	
-	local gui = player.PlayerGui
-	
+
+local function clear_frames()
 	local uis = gui:GetDescendants()
-	
-	--make all guis invisible
 	for i, ui in ipairs(uis) do
 		if ui:IsA("Frame") then
 			ui.Visible = false
 		end
 	end
-	
-	--make intro frame visible
-	gui.IntroGui.IntroFrame.Visible = true
-	
-	local camera = workspace.CurrentCamera
-	local intro = game.Workspace.IntroScene.IntroCamera
+end
 
-	camera.CFrame = intro.CFrame
+
+local PlayerState = {}
+
+function PlayerState.intro_state()
+	--make all guis invisible
+	clear_frames()
+
+	--make intro frame visible
+	intro_gui.IntroFrame.Visible = true
+	intro_gui.IntroFrame.IntroMenu.Visible = true
 	
+	-------Camera Stuff--------------------------
+
+	camera.CameraType = Enum.CameraType.Scriptable
+
+	local intro_cam = game.Workspace.IntroScene.IntroCamera
+
+	camera.CFrame = intro_cam.CFrame
+	
+end
+
+function PlayerState.game_state(unit_center, other_player)
+	
+	clear_frames()
+	intro_frame.Visible = false
+	game_frame.Visible = true
+	game_frame.Self.Text = player.Name
+	game_frame.OtherPlayer.Text = other_player.Name
+	
+	----------Camera Stuff----------------------------
+	
+	camera.CFrame = unit_center.CFrame + Vector3.new(0, 0, 40)
+end
+
+function PlayerState.game_over_state(result)
+	if result == nil then
+		result_text.ResultText.BackgroundColor3 = Color3.new(0, 0, 0)
+		result_text.Text = "Tie Game"
+		game_over_frame.Visible = true
+	elseif result == true then
+		result_text.BackgroundColor3 = Color3.new(0.247059, 0.815686, 0.0901961)
+		result_text.Text = "You Win!"
+		game_over_frame.Visible = true
+	else
+		result_text.BackgroundColor3 = Color3.new(0.811765, 0, 0)
+		result_text.Text = "You Lose."
+		game_over_frame.Visible = true
+	end
+	wait(2)
 end
 
 
