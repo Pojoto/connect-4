@@ -1,14 +1,18 @@
+local rep_storage = game:GetService("ReplicatedStorage")
+local sss = game:GetService("ServerScriptService")
 
-local play_human_remote = game:GetService("ReplicatedStorage").PlayHuman
-local play_self_remote = game:GetService("ReplicatedStorage").PlaySelf
-local turn_remote = game:GetService("ReplicatedStorage").Turn
-local camera_remote = game:GetService("ReplicatedStorage").Camera
-local game_over_remote = game:GetService("ReplicatedStorage").GameOver
-local player_state_remote = game:GetService("ReplicatedStorage").PlayerState
+local play_human_remote = rep_storage.PlayHuman
+local play_self_remote = rep_storage.PlaySelf
+local turn_remote = rep_storage.Turn
+local player_state_remote = rep_storage.PlayerState
 
-local GameObject = require(game:GetService("ServerScriptService").GameObject)
+local GameObject = require(sss.GameObject)
 local unit = game:GetService("ServerStorage").Unit
-local token = game:GetService("ReplicatedStorage").Token
+local token = rep_storage.Token
+
+local tween_service = game:GetService("TweenService")
+
+local ProfileManager = require(sss.ProfileStuff.ProfileManager)
 
 local SPACING = 8
 local HEIGHT = 25
@@ -69,6 +73,9 @@ play_human_remote.OnServerEvent:Connect(function(player)
 			
 			--add the game object and its id to the database
 			board_dict[new_id] = new_game
+			
+			--wait time for the gui intro stuff (tweening)
+			wait(3)
 
 			new_game:NextTurn(new_id)
 		end
@@ -100,6 +107,9 @@ play_self_remote.OnServerEvent:Connect(function(player)
 	iteration += 1
 	board_dict[new_id] = new_game
 	
+	--wait time for intro to load
+	wait(3)
+	
 	new_game:NextTurn(new_id, center, new_game.BoardMatrix)
 end)
 
@@ -107,9 +117,6 @@ turn_remote.OnServerEvent:Connect(function(player, id, drop_column)
 	
 	--find the players associated game object through its given id
 	local game_object = board_dict[id]
-	
-	--find the center associated with the unit of the game object
-	local center = game_object.Unit.PrimaryPart
 	
 	--execute the turn in the board matrix and physically(server side)
 	table.insert(game_object.BoardMatrix[drop_column], game_object.CurrentTurn)
@@ -119,9 +126,13 @@ turn_remote.OnServerEvent:Connect(function(player, id, drop_column)
 		
 	if finished then
 		--the game is over (connect 4 found)
-		wait(1)
+		wait(2)
 		--check if game was tie (if turn was returned nil)
 		if winner and loser then
+			--update winner coin amount on server
+			ProfileManager:Update(winner, "Coins", function(current_coins)
+				return current_coins + 10
+			end)
 			--fire client to winner that he won, fire client to loser that he lost (current turn is winner turn)
 			player_state_remote:FireClient(loser, "game over", false)
 			player_state_remote:FireClient(winner, "game over", true)
@@ -130,7 +141,15 @@ turn_remote.OnServerEvent:Connect(function(player, id, drop_column)
 			player_state_remote:FireClient(loser, "game over", nil)
 			player_state_remote:FireClient(winner, "game over", nil)
 		end
-		wait(2)
+		--tweening of bottom board
+		local bottom = game_object.Unit.Board.Bottom
+		bottom.Transparency = 1
+		local goal = {}
+		goal.Position = bottom.Position + Vector3.new(-150, 0, 0)
+		local tween_info = TweenInfo.new(2, Enum.EasingStyle.Linear)
+		local tween = tween_service:Create(bottom, tween_info, goal)
+		tween:Play()
+		wait(5)
 		game_object:Destroy()
 		
 	else
