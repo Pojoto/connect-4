@@ -6,8 +6,8 @@ local runservice = game:GetService("RunService")
 
 local player = game:GetService("Players").LocalPlayer
 
-local game_frame = player.PlayerGui:WaitForChild("GameGui").GameFrame
-local timer = game_frame.Timer
+local game_menu = player.PlayerGui:WaitForChild("GameGui").GameMenu
+local timer = game_menu.Timer
 
 local mouse = player:GetMouse()
 
@@ -88,8 +88,10 @@ local function finish()
 		connection:Disconnect()
 	end
 	
-	game_frame.Self.BackgroundColor3 = Color3.new(1, 1, 1)
-	game_frame.OtherPlayer.BackgroundColor3 = Color3.new(0.25, 1, 0.25)
+	game_menu.Self.BackgroundColor3 = Color3.new(1, 1, 1)
+	game_menu.OtherPlayer.BackgroundColor3 = Color3.new(0.25, 1, 0.25)
+	game_menu.OtherPlayer.Text = game_menu.OtherPlayer.Text .. "'s Turn"
+	game_menu.Self.Text = player.Name
 	
 	turn_remote:FireServer(id, drop_column)
 	token.Position = Vector3.new(center.Position.X - columns_x[drop_column], token.Position.Y, token.Position.Z)
@@ -121,7 +123,7 @@ local function player_turn()
 	timer.Text = 10
 	
 	--establish function connections (click event and mouse tracking)
-	connection = mouse.Button1Down:Connect(click)
+	connection = mouse.Button1Up:Connect(click)
 	runservice:BindToRenderStep("mouse_bind", 1, hover_token)
 	
 	for i = 100, 0, -1 do
@@ -150,8 +152,10 @@ turn_remote.OnClientEvent:Connect(function(incoming_id, game_object)--color, inc
 	
 	find_mouse_column()
 	
-	game_frame.Self.BackgroundColor3 = Color3.new(0.25, 1, 0.25)
-	game_frame.OtherPlayer.BackgroundColor3 = Color3.new(1, 1, 1)
+	game_menu.Self.BackgroundColor3 = Color3.new(0.25, 1, 0.25)
+	game_menu.OtherPlayer.BackgroundColor3 = Color3.new(1, 1, 1)
+	game_menu.Self.Text = game_menu.Self.Text .. "'s Turn"
+	game_menu.OtherPlayer.Text = game_object.Players[game_object.CurrentTurn % 2 + 1][1].Name
 	
 	--create token
 	token = game:GetService("ReplicatedStorage").Token:Clone()
