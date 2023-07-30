@@ -1,0 +1,109 @@
+
+
+local ProfileManager = {}
+
+
+local profile_remote = game:GetService("ReplicatedStorage").Profile
+local ProfileService = require(game:GetService("ServerScriptService").ProfileStuff.ProfileService)
+local Players = game:GetService("Players")
+
+local ProfileTemplate = {
+	Coins = 0,
+	Gems = 0,
+	Items = {},
+	LogInTimes = 0,
+}
+
+local ProfileStore = ProfileService.GetProfileStore(
+	"PlayerData",
+	ProfileTemplate
+)
+
+local Profiles = {}
+
+local function update_gui(player, profile)
+	profile_remote:FireClient(player, profile.Data)
+end
+
+local function PlayerAdded(player)
+	local profile = ProfileStore:LoadProfileAsync("Player_" .. player.UserId)
+	if profile ~= nil then
+		profile:AddUserId(player.UserId) -- GDPR compliance
+		profile:Reconcile() -- Fill in missing variables from ProfileTemplate (optional)
+		profile:ListenToRelease(function()
+			Profiles[player] = nil
+			-- The profile could've been loaded on another Roblox server:
+			player:Kick()
+		end)
+		if player:IsDescendantOf(Players) == true then
+			Profiles[player] = profile
+			-- A profile has been successfully loaded:
+			profile.Data.LogInTimes = profile.Data.LogInTimes + 1
+			update_gui(player, profile)
+		else
+			-- Player left before the profile loaded:
+			profile:Release()
+		end
+	else
+		-- The profile couldn't be loaded possibly due to other
+		--   Roblox servers trying to load this profile at the same time:
+		player:Kick() 
+	end
+end
+
+local function get_profile(player)
+	assert(Profiles[player], string.format("Profile does not exist for %s", player.UserId))
+
+	return Profiles[player]
+end
+
+
+
+function ProfileManager:Init()
+	for _, player in game.Players:GetPlayers() do
+		task.spawn(PlayerAdded, player)
+	end
+	
+	----- Connections -----
+	
+	game.Players.PlayerAdded:Connect(PlayerAdded)
+	
+	game.Players.PlayerRemoving:Connect(function(player)
+		if Profiles[player] then
+			Profiles[player]:Release()
+		end
+	end)
+end
+
+
+function ProfileManager:Get(player, key)
+	local profile = get_profile(player)
+	assert(profile.Data[key], string.format("Data does not exist for key: %s", key))
+	
+	return profile.Data[key]
+end
+
+
+function ProfileManager:Set(player, key, value)
+	local profile = get_profile(player)
+	assert(profile.Data[key], string.format("Data does not exist for key: %s", key))
+
+	assert(type(profile.Data[key]) == type(value))
+	
+	profile.Data[key] = value
+end
+
+
+function ProfileManager:Update(player, key, callback)
+	local profile = get_profile(player)
+	
+	local oldData = self:Get(player, key)
+	local newData = callback(oldData)
+	
+	self:Set(player, key, newData)
+	
+	update_gui(player, profile)
+end
+
+
+return ProfileManager
