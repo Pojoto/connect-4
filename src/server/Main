@@ -15,7 +15,7 @@ local tween_service = game:GetService("TweenService")
 local ProfileManager = require(sss.ProfileStuff.ProfileManager)
 
 local SPACING = 8
-local HEIGHT = 25
+local HEIGHT = 24
 
 local columns_x = {
 
@@ -40,7 +40,8 @@ local function drop_token(drop_column, game_object)
 	local center = game_object.Unit.Board.Center
 	local clone = token:Clone()
 	clone.Position = Vector3.new(center.Position.X -  columns_x[drop_column], center.Position.Y + HEIGHT, center.Position.Z) 
-	clone.Color = game_object.Players[game_object.CurrentTurn][2]
+	clone.Color = game_object.Players[game_object.CurrentTurn][2].Color
+	clone.Material = game_object.Players[game_object.CurrentTurn][2].Material
 	clone.Anchored = false
 	clone.Parent = game_object.Unit.Tokens
 end
@@ -58,13 +59,9 @@ play_human_remote.OnServerEvent:Connect(function(player)
 			new_unit:PivotTo(CFrame.new(new_unit.PrimaryPart.Position + Vector3.new(0, 0, 200 * iteration)))
 			
 			local center = new_unit.Board.Center
-			
-			--change players states to game state - updates ui and camera
-			player_state_remote:FireClient(queue, "game", center, player)
-			player_state_remote:FireClient(player, "game", center, queue)
 		
 			local new_game = GameObject.new(queue, player, new_unit)
-			queue = nil
+			
 
 			--make a new id (simple linearish function helps provide some concealment so exploiters can't send random ids of other games)
 			local new_id = 2 * iteration + (iteration % 4 + 92)
@@ -74,8 +71,15 @@ play_human_remote.OnServerEvent:Connect(function(player)
 			--add the game object and its id to the database
 			board_dict[new_id] = new_game
 			
+			--change players states to game state - updates ui and camera
+			player_state_remote:FireClient(queue, "game", center, player)
+			player_state_remote:FireClient(player, "game", center, queue)
+			
+			--empty the queue
+			queue = nil
+			
 			--wait time for the gui intro stuff (tweening)
-			wait(3)
+			wait(2.5)
 
 			new_game:NextTurn(new_id)
 		end
@@ -98,17 +102,17 @@ play_self_remote.OnServerEvent:Connect(function(player)
 		queue = nil
 	end
 
-	--fire clients to hide intro frame and to move camera into unit
-	player_state_remote:FireClient(player, "game", center, player)
-
 	local new_game = GameObject.new(player, player, new_unit)
 	
 	local new_id = 2 * iteration + (iteration % 4 + 92)
 	iteration += 1
 	board_dict[new_id] = new_game
 	
+	--fire clients to hide intro frame and to move camera into unit
+	player_state_remote:FireClient(player, "game", center, player)
+	
 	--wait time for intro to load
-	wait(3)
+	wait(2.5)
 	
 	new_game:NextTurn(new_id, center, new_game.BoardMatrix)
 end)
@@ -117,6 +121,8 @@ turn_remote.OnServerEvent:Connect(function(player, id, drop_column)
 	
 	--find the players associated game object through its given id
 	local game_object = board_dict[id]
+	
+	local next_turn = game_object.CurrentTurn % 2 + 1
 	
 	--execute the turn in the board matrix and physically(server side)
 	table.insert(game_object.BoardMatrix[drop_column], game_object.CurrentTurn)
@@ -129,17 +135,22 @@ turn_remote.OnServerEvent:Connect(function(player, id, drop_column)
 		wait(2)
 		--check if game was tie (if turn was returned nil)
 		if winner and loser then
-			--update winner coin amount on server
-			ProfileManager:Update(winner, "Coins", function(current_coins)
-				return current_coins + 10
-			end)
+			
+			--check so we don't give coins to 'play yourself' matches
+			if winner ~= loser then
+				--update winner coin amount on server
+				ProfileManager:Update(winner, "Coins", function(current_coins)
+					return current_coins + 10
+				end)
+			end
+
 			--fire client to winner that he won, fire client to loser that he lost (current turn is winner turn)
 			player_state_remote:FireClient(loser, "game over", false)
 			player_state_remote:FireClient(winner, "game over", true)
 		else
 			--game was a tie
-			player_state_remote:FireClient(loser, "game over", nil)
-			player_state_remote:FireClient(winner, "game over", nil)
+			player_state_remote:FireClient(player, "game over", nil)
+			player_state_remote:FireClient(game_object.Players[next_turn][1], "game over", nil)
 		end
 		--tweening of bottom board
 		local bottom = game_object.Unit.Board.Bottom
@@ -154,7 +165,7 @@ turn_remote.OnServerEvent:Connect(function(player, id, drop_column)
 		
 	else
 		--check if someone won, if they didnt then call next turn
-		game_object.CurrentTurn = (game_object.CurrentTurn % 2) + 1
+		game_object.CurrentTurn = next_turn
 
 		--call the next player's turn
 		game_object:NextTurn(id)

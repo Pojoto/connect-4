@@ -13,7 +13,7 @@ local mouse = player:GetMouse()
 
 local SPACING = 8
 
-local HEIGHT = 25
+local HEIGHT = 24
 
 local tween_service = game:GetService("TweenService")
 
@@ -162,7 +162,8 @@ turn_remote.OnClientEvent:Connect(function(incoming_id, game_object)--color, inc
 	token.Anchored = true
 	token.CanCollide = false
 	token.Position = Vector3.new(center.Position.X - columns_x[drop_column], center.Position.Y + HEIGHT, center.Position.Z)
-	token.Color = game_object.Players[game_object.CurrentTurn][2]
+	token.Color = game_object.Players[game_object.CurrentTurn][2].Color
+	token.Material = game_object.Players[game_object.CurrentTurn][2].Material
 	token.Parent = game.Workspace
 	
 	player_turn()

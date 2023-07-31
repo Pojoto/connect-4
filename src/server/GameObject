@@ -1,4 +1,6 @@
 local Sequence = require(game:GetService("ServerScriptService").Sequence)
+local ProfileManager = require(game:GetService("ServerScriptService").ProfileStuff.ProfileManager)
+local ItemData = require(game:GetService("ServerScriptService").ItemData)
 
 local turn_remote = game:GetService("ReplicatedStorage").Turn
 
@@ -11,8 +13,18 @@ function GameObject.new(player1, player2, unit)
 	local newGame = {}
 	setmetatable(newGame, GameObject)
 	
-	local player1_info = {player1, Color3.new(1, 0, 0)}
-	local player2_info = {player2, Color3.new(1, 1, 0)}
+	--this gives us the name of the token skin equipped, now we use item data to fetch its color property
+	local equip_key1 = ProfileManager:Get(player1, "Equipped").TokenSkin
+	local color1 = ItemData:get_item_data(equip_key1).Color
+	local material1 = ItemData:get_item_data(equip_key1).Material
+	
+	local player1_info = {player1, {Color = color1, Material = material1}}
+	
+	local equip_key2 = ProfileManager:Get(player2, "Equipped").TokenSkin
+	local color2 = ItemData:get_item_data(equip_key2).Color
+	local material2 = ItemData:get_item_data(equip_key2).Material
+	
+	local player2_info = {player2, {Color = color2, Material = material2}}
 	
 	newGame.Players = {player1_info, player2_info}
 	newGame.BoardMatrix = {
@@ -50,7 +62,7 @@ function GameObject:IsGameOver(drop_column)
 		for i = 1, #board do
 			spaces += #board[i]
 		end
-		if spaces == 42 then
+		if spaces >= 42 then
 			return true, nil, nil
 		end
 	end
