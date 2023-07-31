@@ -3,16 +3,16 @@ local player = game:GetService("Players").LocalPlayer
 
 local item_function = game:GetService("ReplicatedStorage").ItemFunction
 local profile_function = game:GetService("ReplicatedStorage").ProfileFunction
-
-
-
+local equip_remote = game:GetService("ReplicatedStorage").Equip
 
 local showcase_frame = player.PlayerGui:WaitForChild("ShopGui").ShopFrame.ShowcaseFrame
 
 local ItemsManager = {}
 
 local current_showcase
-
+--ask server for the player's profile current equipped on startup
+local current_equipped = profile_function:InvokeServer().Equipped
+print(current_equipped["TokenSkin"])
 --ask the server for the items data
 local items = item_function:InvokeServer()
 
@@ -20,13 +20,13 @@ local items = item_function:InvokeServer()
 local function update_bought()
 	--retrieves user profile to see what the user has bought already, loops to update
 	local profile_data = profile_function:InvokeServer()
-	print(profile_data.Coins)
 
 	for key, item in pairs(items) do
 		if table.find(profile_data.Items, key) then
 			items[key].Bought = true
 		end
 	end
+	
 end
 
 --call it once when the player enters
@@ -42,22 +42,44 @@ end
 function ItemsManager:bought()
 	--we need to update our items list to include the bought items now
 	--we could do this completely locally, but I want to check with server to make sure
+	showcase_frame.BuyButton.Visible = false
+	showcase_frame.EquipButton.Visible = true
 	update_bought()
 end
 
 function ItemsManager:showcase(title)
 	current_showcase = title
 	local info = items[title]
+	showcase_frame.Visible = true
 	showcase_frame.Title.Text = info.Title
 	showcase_frame.Price.Text = info.Price .. " " .. info.Currency
-	showcase_frame.ViewportFrame.BackgroundColor3 = info.Color
+	showcase_frame.ViewportFrame.Token.Color = info.Color
+	--check if item is bought, if it is then don't show "BUY"
 	if info.Bought then
+		--check if the item is equipped, then show "Equipped"
+		if current_equipped[info.Type] == title then
+			showcase_frame.EquipButton.Text = "Equipped"
+		else
+			showcase_frame.EquipButton.Text = "Equip"
+		end
 		showcase_frame.EquipButton.Visible = true
 		showcase_frame.BuyButton.Visible = false
 	else
 		showcase_frame.BuyButton.Visible = true
 		showcase_frame.EquipButton.Visible = false
 	end
+end
+
+function ItemsManager:equip()
+	local current_info = items[current_showcase]
+	--changing our current equipped of the current type to the current showcase
+	current_equipped[current_info.Type] = current_showcase
+	showcase_frame.EquipButton.Text = "Equipped"
+	showcase_frame.EquipButton.Active = false
+	
+	--fire server to update the equipped section in player profile
+	equip_remote:FireServer(current_info.Type, current_showcase)
+	
 end
 
 function ItemsManager:get_current_showcase()
