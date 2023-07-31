@@ -1,0 +1,17 @@
+local ItemData = {}
+
+
+local item_data = {
+
+	BlackColor = {Title = "Black", Color = Color3.new(0, 0, 0), Price = 1000, Currency = "Coins", Bought = false},
+	PurpleColor = {Title = "Purple", Color = Color3.new(0.6, 0.3, 1), Price = 20, Currency = "Coins", Bought = false}
+
+}
+
+
+function ItemData:get_item_data()
+	return item_data
+end
+
+
+return ItemData

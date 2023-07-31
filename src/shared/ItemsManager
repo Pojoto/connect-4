@@ -1,0 +1,67 @@
+
+local player = game:GetService("Players").LocalPlayer
+
+local item_function = game:GetService("ReplicatedStorage").ItemFunction
+local profile_function = game:GetService("ReplicatedStorage").ProfileFunction
+
+
+
+
+local showcase_frame = player.PlayerGui:WaitForChild("ShopGui").ShopFrame.ShowcaseFrame
+
+local ItemsManager = {}
+
+local current_showcase
+
+--ask the server for the items data
+local items = item_function:InvokeServer()
+
+
+local function update_bought()
+	--retrieves user profile to see what the user has bought already, loops to update
+	local profile_data = profile_function:InvokeServer()
+	print(profile_data.Coins)
+
+	for key, item in pairs(items) do
+		if table.find(profile_data.Items, key) then
+			items[key].Bought = true
+		end
+	end
+end
+
+--call it once when the player enters
+update_bought()
+
+function ItemsManager:init_frame(frame)
+	local info = items[frame.Name]
+	frame.Title.Text = info.Title
+	frame.Price.Text = info.Price .. " " .. info.Currency
+	frame.Image.BackgroundColor3 = info.Color
+end
+
+function ItemsManager:bought()
+	--we need to update our items list to include the bought items now
+	--we could do this completely locally, but I want to check with server to make sure
+	update_bought()
+end
+
+function ItemsManager:showcase(title)
+	current_showcase = title
+	local info = items[title]
+	showcase_frame.Title.Text = info.Title
+	showcase_frame.Price.Text = info.Price .. " " .. info.Currency
+	showcase_frame.ViewportFrame.BackgroundColor3 = info.Color
+	if info.Bought then
+		showcase_frame.EquipButton.Visible = true
+		showcase_frame.BuyButton.Visible = false
+	else
+		showcase_frame.BuyButton.Visible = true
+		showcase_frame.EquipButton.Visible = false
+	end
+end
+
+function ItemsManager:get_current_showcase()
+	return current_showcase
+end
+
+return ItemsManager
