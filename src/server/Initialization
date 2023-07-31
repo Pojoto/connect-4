@@ -1,0 +1,18 @@
+
+------Profile Initialization----------
+local ProfileManager = require(game:GetService("ServerScriptService").ProfileStuff.ProfileManager)
+
+ProfileManager:Init()
+
+-------Item Initialization--------------
+local item_function = game:GetService("ReplicatedStorage").ItemFunction
+
+local ItemData = require(game:GetService("ServerScriptService").ItemData)
+
+local item_data = ItemData:get_item_data()
+	
+--when client asks, we give the item data
+item_function.OnServerInvoke = function()
+	return item_data
+end
+
