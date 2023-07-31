@@ -1,0 +1,32 @@
+
+local ProfileManager = require(game:GetService("ServerScriptService").ProfileStuff.ProfileManager)
+
+local ItemData = require(game:GetService("ServerScriptService").ItemData)
+
+local buy_function = game:GetService("ReplicatedStorage").BuyFunction
+
+
+buy_function.OnServerInvoke = function(player, item_key)
+	
+	local item_data = ItemData:get_item_data()[item_key]
+	local price = item_data.Price
+	local currency = item_data.Currency
+	--fetch the player's coin amount from profile
+	local coin_amount = ProfileManager:Get(player, currency)
+	
+	if coin_amount >= price then
+		--insert the new item into player profile
+		ProfileManager:Update(player, "Items", function(current_items)
+			table.insert(current_items, item_key)
+			return current_items
+		end)
+		--subtract player coins
+		ProfileManager:Update(player, currency, function(current_currency)
+			return current_currency - price
+		end)
+		return true
+	else
+		return false
+	end
+	
+end
