@@ -1,0 +1,51 @@
+local player = game:GetService("Players").LocalPlayer
+local PlayerState = require(game:GetService("ReplicatedFirst").PlayerState)
+
+local ItemsManager = require(game:GetService("ReplicatedFirst").ItemsManager)
+
+local tween_service = game:GetService("TweenService")
+local rep_storage = game:GetService("ReplicatedStorage")
+
+local buy_function = rep_storage.BuyFunction
+
+local player_gui = player:WaitForChild("PlayerGui")
+
+local bar_frame = player_gui.BarGui.BarFrame
+
+local shop_gui = player_gui.ShopGui
+local shop_frame = shop_gui.ShopFrame
+local shop_button = bar_frame.ShopButton
+
+
+local page_buttons = shop_frame.PageButtons
+local items_frame = shop_frame.ItemsFrame
+local showcase_frame = shop_frame.ShowcaseFrame
+local buy_button = showcase_frame.BuyButton
+local equip_button = showcase_frame.EquipButton
+local token_skins_frame = items_frame.TokenSkinsFrame
+local backgrounds_frame = items_frame.BackgroundsFrame
+
+
+
+shop_button.MouseButton1Click:Connect(function()
+	PlayerState.shop_state()
+end)
+
+buy_button.MouseButton1Click:Connect(function()
+	local current_showcase = ItemsManager:get_current_showcase()
+	local can_buy = buy_function:InvokeServer(current_showcase)
+	
+	print(can_buy)
+	
+	if can_buy then
+		ItemsManager:bought()
+	else
+		buy_button.BackgroundColor3 = Color3.new(1, 0, 0)
+		wait(0.5)
+		buy_button.BackgroundColor3 = Color3.new(0, 1, 0)
+	end
+end)
+
+equip_button.MouseButton1Click:Connect(function()
+
+end)

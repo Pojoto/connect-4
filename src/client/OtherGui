@@ -1,0 +1,43 @@
+
+local player = game:GetService("Players").LocalPlayer
+local PlayerState = require(game:GetService("ReplicatedFirst").PlayerState)
+
+local tween_service = game:GetService("TweenService")
+
+local player_gui = player:WaitForChild("PlayerGui")
+
+local intro_gui = player_gui:WaitForChild("IntroGui")
+local intro_menu = intro_gui.IntroMenu
+
+local play_human_button = intro_menu.PlayHuman
+local play_ai_button = intro_menu.PlayAI
+local play_self_button = intro_menu.PlaySelf
+
+local rep_storage = game:GetService("ReplicatedStorage")
+local play_human_remote = rep_storage.PlayHuman
+local play_self_remote = rep_storage.PlaySelf
+local profile_remote = rep_storage.Profile
+
+local bar_frame = player_gui.BarGui.BarFrame
+
+
+play_human_button.MouseButton1Click:Connect(function()
+	play_human_remote:FireServer()
+end)
+
+play_ai_button.MouseButton1Click:Connect(function()
+
+end)
+
+play_self_button.MouseButton1Click:Connect(function()
+	play_self_remote:FireServer()
+end)
+
+
+local function update_profile_gui(profile)
+	--update profile
+	bar_frame.GemAmount.Text = profile.Gems
+	bar_frame.CoinAmount.Text = profile.Coins
+end
+
+profile_remote.OnClientEvent:Connect(update_profile_gui)
