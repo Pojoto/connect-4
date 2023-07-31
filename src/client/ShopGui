@@ -25,8 +25,6 @@ local equip_button = showcase_frame.EquipButton
 local token_skins_frame = items_frame.TokenSkinsFrame
 local backgrounds_frame = items_frame.BackgroundsFrame
 
-
-
 shop_button.MouseButton1Click:Connect(function()
 	PlayerState.shop_state()
 end)
