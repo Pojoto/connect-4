@@ -4,6 +4,7 @@ local ProfileManager = {}
 
 
 local profile_remote = game:GetService("ReplicatedStorage").Profile
+local profile_function = game:GetService("ReplicatedStorage").ProfileFunction
 local ProfileService = require(game:GetService("ServerScriptService").ProfileStuff.ProfileService)
 local Players = game:GetService("Players")
 
@@ -73,6 +74,10 @@ function ProfileManager:Init()
 			Profiles[player]:Release()
 		end
 	end)
+	
+	profile_function.OnServerInvoke = function(player)
+		return Profiles[player].Data
+	end
 end
 
 
