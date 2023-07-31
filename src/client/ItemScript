@@ -1,0 +1,14 @@
+
+local item_frame = script.Parent
+
+local ItemsManager = require(game:GetService("ReplicatedFirst").ItemsManager)
+
+
+ItemsManager:init_frame(item_frame)
+
+
+item_frame.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		ItemsManager:showcase(item_frame.Name)
+	end
+end)
