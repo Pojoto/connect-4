@@ -1,8 +1,15 @@
 
-local player = game:GetService("Players").LocalPlayer
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
 local PlayerState = require(game:GetService("ReplicatedFirst").PlayerState)
 
 local tween_service = game:GetService("TweenService")
+
+local SocialService = game:GetService("SocialService")
+-- Construct invite options with friend's user ID
+local inviteOptions = Instance.new("ExperienceInviteOptions")
+inviteOptions.InviteMessageId = "3547ce81-782d-c946-9709-5afd0542f632"
+
 
 local player_gui = player:WaitForChild("PlayerGui")
 
@@ -12,6 +19,7 @@ local intro_menu = intro_gui.IntroMenu
 local play_human_button = intro_menu.PlayHuman
 local play_ai_button = intro_menu.PlayAI
 local play_self_button = intro_menu.PlaySelf
+local invite_friends_button = intro_gui.InviteFriendsButton
 
 local rep_storage = game:GetService("ReplicatedStorage")
 local play_human_remote = rep_storage.PlayHuman
@@ -33,6 +41,22 @@ play_self_button.MouseButton1Click:Connect(function()
 	play_self_remote:FireServer()
 end)
 
+
+-- Function to check whether the player can send an invite
+local function canSendGameInvite(sendingPlayer)
+	local success, canSend = pcall(function()
+		return SocialService:CanSendGameInviteAsync(sendingPlayer)
+	end)
+	return success and canSend
+end
+invite_friends_button.MouseButton1Click:Connect(function()
+	local canInvite = canSendGameInvite(player)
+	if canInvite then
+		local success, errorMessage = pcall(function()
+			SocialService:PromptGameInvite(player, inviteOptions)
+		end)
+	end
+end)
 
 local function update_profile_gui(profile)
 	--update profile
