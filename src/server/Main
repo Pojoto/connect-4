@@ -161,6 +161,7 @@ turn_remote.OnServerEvent:Connect(function(player, id, drop_column)
 		local tween = tween_service:Create(bottom, tween_info, goal)
 		tween:Play()
 		wait(5)
+		table.remove(board_dict, id)
 		game_object:Destroy()
 		
 	else
