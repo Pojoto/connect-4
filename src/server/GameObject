@@ -15,15 +15,27 @@ function GameObject.new(player1, player2, unit)
 	
 	--this gives us the name of the token skin equipped, now we use item data to fetch its color property
 	local equip_key1 = ProfileManager:Get(player1, "Equipped").TokenSkin
-	local color1 = ItemData:get_item_data(equip_key1).Color
+	--check to see if the player has default skin equipped
+	local color1
+	if equip_key1 == "DefaultColor" then
+		color1 = ItemData:get_item_data(equip_key1).Color[1]
+	else
+		color1 = ItemData:get_item_data(equip_key1).Color
+	end
 	local material1 = ItemData:get_item_data(equip_key1).Material
-	
 	local player1_info = {player1, {Color = color1, Material = material1}}
 	
-	local equip_key2 = ProfileManager:Get(player2, "Equipped").TokenSkin
-	local color2 = ItemData:get_item_data(equip_key2).Color
-	local material2 = ItemData:get_item_data(equip_key2).Material
 	
+	local equip_key2 = ProfileManager:Get(player2, "Equipped").TokenSkin
+	local color2
+	--check if default but also check if playre2 has same skin as player1. if they do then go to default
+	if equip_key2 == "DefaultColor" or equip_key2 == equip_key1 then
+		equip_key2 = "DefaultColor"
+		color2 = ItemData:get_item_data(equip_key2).Color[2]
+	else
+		color2 = ItemData:get_item_data(equip_key2).Color
+	end
+	local material2 = ItemData:get_item_data(equip_key2).Material
 	local player2_info = {player2, {Color = color2, Material = material2}}
 	
 	newGame.Players = {player1_info, player2_info}
