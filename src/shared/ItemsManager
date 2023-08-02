@@ -1,17 +1,23 @@
 
 local player = game:GetService("Players").LocalPlayer
 
-local item_function = game:GetService("ReplicatedStorage").ItemFunction
-local profile_function = game:GetService("ReplicatedStorage").ProfileFunction
-local equip_remote = game:GetService("ReplicatedStorage").Equip
+local rep_storage = game:GetService("ReplicatedStorage")
+local item_function = rep_storage.ItemFunction
+local profile_function = rep_storage:WaitForChild("ProfileFunction")
+local equip_remote = rep_storage.Equip
+local buy_function = rep_storage.BuyFunction
+
 
 local showcase_frame = player.PlayerGui:WaitForChild("ShopGui").ShopFrame.ShowcaseFrame
+local buy_button = showcase_frame.ActionFrame.BuyButton
+local equip_button = showcase_frame.ActionFrame.EquipButton
 
 local ItemsManager = {}
 
 local current_showcase
 --ask server for the player's profile current equipped on startup
 local current_equipped = profile_function:InvokeServer().Equipped
+
 print(current_equipped["TokenSkin"])
 --ask the server for the items data
 local items = item_function:InvokeServer()
@@ -36,37 +42,67 @@ function ItemsManager:init_frame(frame)
 	local info = items[frame.Name]
 	frame.Title.Text = info.Title
 	frame.Price.Text = info.Price .. " " .. info.Currency
-	frame.Image.BackgroundColor3 = info.Color
+	--checking for default color skin item
+	if type(info.Color) ~= "table" then
+		frame.Image.BackgroundColor3 = info.Color
+	end
 end
 
-function ItemsManager:bought()
+function ItemsManager:attempt_buy()
+	local can_buy = buy_function:InvokeServer(current_showcase)
+
+	if can_buy then
+		self:equip()
+		equip_button.Visible = true
+		buy_button.Visible = false
+	else
+		buy_button.BackgroundColor3 = Color3.new(1, 0, 0)
+		wait(0.5)
+		buy_button.BackgroundColor3 = Color3.new(0, 1, 0)
+	end
+	
 	--we need to update our items list to include the bought items now
 	--we could do this completely locally, but I want to check with server to make sure
-	showcase_frame.BuyButton.Visible = false
-	showcase_frame.EquipButton.Visible = true
 	update_bought()
 end
 
 function ItemsManager:showcase(title)
-	current_showcase = title
-	local info = items[title]
+	--if showcase is called with no arg, then showcase the current equipped item for a token skin
+	if title == nil then
+		current_showcase = current_equipped.TokenSkin
+	else
+		current_showcase = title
+	end
+
+	local info = items[current_showcase]
 	showcase_frame.Visible = true
 	showcase_frame.Title.Text = info.Title
 	showcase_frame.Price.Text = info.Price .. " " .. info.Currency
-	showcase_frame.ViewportFrame.Token.Color = info.Color
+	--check if default color by checking if the color property is two colors in a table
+	if type(info.Color) == "table" then
+		local random = math.random(1, 2)
+		showcase_frame.ViewportFrame.Token.Color = info.Color[random]
+	else
+		showcase_frame.ViewportFrame.Token.Color = info.Color
+	end
+
 	--check if item is bought, if it is then don't show "BUY"
 	if info.Bought then
 		--check if the item is equipped, then show "Equipped"
-		if current_equipped[info.Type] == title then
-			showcase_frame.EquipButton.Text = "Equipped"
+		if current_equipped[info.Type] == current_showcase then
+			equip_button.Text = "Equipped"
+			equip_button.Active = false
+			equip_button.AutoButtonColor = false
 		else
-			showcase_frame.EquipButton.Text = "Equip"
+			equip_button.Text = "Equip"
+			equip_button.Active = true
+			equip_button.AutoButtonColor = true
 		end
-		showcase_frame.EquipButton.Visible = true
-		showcase_frame.BuyButton.Visible = false
+		equip_button.Visible = true
+		buy_button.Visible = false
 	else
-		showcase_frame.BuyButton.Visible = true
-		showcase_frame.EquipButton.Visible = false
+		buy_button.Visible = true
+		equip_button.Visible = false
 	end
 end
 
@@ -74,8 +110,9 @@ function ItemsManager:equip()
 	local current_info = items[current_showcase]
 	--changing our current equipped of the current type to the current showcase
 	current_equipped[current_info.Type] = current_showcase
-	showcase_frame.EquipButton.Text = "Equipped"
-	showcase_frame.EquipButton.Active = false
+	equip_button.Text = "Equipped"
+	equip_button.Active = false
+	equip_button.AutoButtonColor = false
 	
 	--fire server to update the equipped section in player profile
 	equip_remote:FireServer(current_info.Type, current_showcase)
