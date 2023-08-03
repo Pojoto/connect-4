@@ -138,6 +138,16 @@ local function player_turn()
 		wait(0.1)
 	end
 	
+	local i = 1
+	while i <= 7 do
+		if #board[drop_column] < 6 then
+			drop_column = i
+		end
+		drop_column = drop_column % 7 + 1
+		i += 1
+	end
+	
+	
 	finish()
 	
 end
