@@ -18,6 +18,7 @@ function Sequence.get_sequences(board, drop_row, drop_column)
 
 	--back and front go search opposite directions in the diagonal
 	local i = 1
+	local incline_diag_index = 1
 	--this statement returns nil if the first indexed chunk is nil. if it's not nil then it will continue and return the next indexed chunk.
 	--this prevents a 'index nil with' error
 	local back = if board[drop_column - i] then board[drop_column - i][drop_row - i] else nil
@@ -27,6 +28,8 @@ function Sequence.get_sequences(board, drop_row, drop_column)
 		if back then
 			table.insert(incline_diag, 1, back)
 			back = if board[drop_column - i - 1] then board[drop_column - i - 1][drop_row - i - 1] else nil
+			--more back tokens means that the drop index is pushed forward 1. more front tokens doesn't affect this
+			incline_diag_index += 1
 		end
 
 		if front then
@@ -38,25 +41,28 @@ function Sequence.get_sequences(board, drop_row, drop_column)
 	end
 
 	local decline_diag = {board[drop_column][drop_row]}
-	i = 1
-	back = if board[drop_column - i] then board[drop_column - i][drop_row + i] else nil
-	front = if board[drop_column + i] then board[drop_column + i][drop_row - i] else nil
+	local j = 1
+	local decline_diag_index = 1
+	back = if board[drop_column - j] then board[drop_column - j][drop_row + j] else nil
+	front = if board[drop_column + j] then board[drop_column + j][drop_row - j] else nil
 
 	while back or front do
 		if back then
 			table.insert(decline_diag, 1, back)
-			back = if board[drop_column - i - 1] then board[drop_column - i - 1][drop_row + i + 1] else nil
+			back = if board[drop_column - j - 1] then board[drop_column - j - 1][drop_row + j + 1] else nil
+			decline_diag_index += 1
 		end
 
 		if front then
 			table.insert(decline_diag, front) 
-			front = if board[drop_column + i + 1] then board[drop_column + i + 1][drop_row - i - 1] else nil
+			front = if board[drop_column + j + 1] then board[drop_column + j + 1][drop_row - j - 1] else nil
 		end
 
-		i += 1
+		j += 1
 	end
 
-	return {row, col, incline_diag, decline_diag}
+	--i and j are used to determine find_four for diags
+	return {row, col, incline_diag, decline_diag}, {incline_diag_index, decline_diag_index}
 
 end
 
@@ -68,13 +74,70 @@ function Sequence.check_four_in_a_row(sequence)
 				break
 			end
 			if j - i == 3 then
-				return true, sequence[j]
+				return true, sequence[j], i
 			end
 		end
 	end
 	return false, nil
 end
 
+
+--used by diag sequences in find_four. used to find relative positioning of start_token in complete board matrix
+local function find_start_row_col(drop_row, drop_col, drop_index, start_index, diag)
+	--find how far the start index from drop index
+	local diff = (drop_index - start_index)
+
+	local start_col = drop_col - diff
+	local start_row
+	--check for incline or decline, start row may go up or down depending
+	if diag == "incline" then
+		start_row = drop_row - diff
+	else
+		start_row = drop_row + diff
+	end
+
+	return start_row, start_col
+end
+
+--given the row and column of the dropped token, and which sequence index where the 4 in a row was found (was it row, col, diag?)
+--and the first token index of the 4 in a row sequence, we can find the 4 double indices which the 4 in a row is.
+function Sequence.find_four(row, col, sequence_index, start_token_index, drop_indices)
+	local row_indices = {}
+	local col_indices = {}
+	--the 4 in a row was found in a row
+	if sequence_index == 1 then
+		for i = 0, 3 do
+			table.insert(row_indices, row)
+			table.insert(col_indices, start_token_index + i)
+		end
+		--the 4 in a row was found in a column
+	elseif sequence_index == 2 then
+		for i = 0, 3 do
+			table.insert(row_indices, start_token_index + i)
+			table.insert(col_indices, col)
+		end
+		--the 4 in a row was found in an incline diag
+	elseif sequence_index == 3 then
+		local drop_index = drop_indices[1]
+		local start_row, start_col = find_start_row_col(row, col, drop_index, start_token_index, "incline")
+		for i = 0, 3 do
+			table.insert(row_indices, start_row + i)
+			table.insert(col_indices, start_col + i)
+		end
+		--the 4 in a row was found in a decline diag
+	elseif sequence_index == 4 then
+		local drop_index = drop_indices[2]
+		local start_row, start_col = find_start_row_col(row, col, drop_index, start_token_index, "decline")
+		for i = 0, 3 do
+			table.insert(row_indices, start_row - i)
+			table.insert(col_indices, start_col + i)
+		end
+	else
+		print("Error")
+	end
+
+	return row_indices, col_indices
+end
 
 
 return Sequence
