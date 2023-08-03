@@ -49,6 +49,15 @@ function GameObject.new(player1, player2, unit)
 		{}
 	}
 	newGame.Unit = unit
+	newGame.TokenMatrix = {
+		{},
+		{},
+		{},
+		{},
+		{},
+		{},
+		{}
+	}
 	newGame.CurrentTurn = 1
 	
 	return newGame
@@ -79,11 +88,25 @@ function GameObject:IsGameOver(drop_column)
 		end
 	end
 
-	local sequences = Sequence.get_sequences(board, drop_row, drop_column)
+	local sequences, diag_drop_indices = Sequence.get_sequences(board, drop_row, drop_column)
 
 	for i, sequence in ipairs(sequences) do
-		local is_four_in_a_row, winner_turn = Sequence.check_four_in_a_row(sequence)
+		local is_four_in_a_row, winner_turn, start_index = Sequence.check_four_in_a_row(sequence)
 		if is_four_in_a_row then
+			
+			--make winning 4 in a row tokens green
+			local second_indices, first_indices = Sequence.find_four(drop_row, drop_column, i, start_index, diag_drop_indices)
+		
+			--delay to let user see board before lighting green
+			wait(1.5)			
+			
+			for i = 1, 4 do
+				local token = self.TokenMatrix[first_indices[i]][second_indices[i]]
+				token.Color = Color3.new(0.235294, 1, 0)
+				token.Material = Enum.Material.Neon
+				wait(0.05)
+			end
+			
 			return true, self.Players[winner_turn][1], self.Players[winner_turn % 2 + 1][1]
 		end
 	end

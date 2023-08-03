@@ -35,7 +35,7 @@ local board_dict = {}
 --contians the player of the next person to be paired to a game
 local queue = nil
 
-
+--drop physical token but also place the part in a board table
 local function drop_token(drop_column, game_object)
 	local center = game_object.Unit.Board.Center
 	local clone = token:Clone()
@@ -44,6 +44,8 @@ local function drop_token(drop_column, game_object)
 	clone.Material = game_object.Players[game_object.CurrentTurn][2].Material
 	clone.Anchored = false
 	clone.Parent = game_object.Unit.Tokens
+	
+	table.insert(game_object.TokenMatrix[drop_column], clone)
 end
 
 play_human_remote.OnServerEvent:Connect(function(player)
@@ -132,7 +134,6 @@ turn_remote.OnServerEvent:Connect(function(player, id, drop_column)
 		
 	if finished then
 		--the game is over (connect 4 found)
-		wait(2)
 		--check if game was tie (if turn was returned nil)
 		if winner and loser then
 			
@@ -143,7 +144,9 @@ turn_remote.OnServerEvent:Connect(function(player, id, drop_column)
 					return current_coins + 10
 				end)
 			end
-
+			
+			--delay for players to examine green lit board
+			wait(1)
 			--fire client to winner that he won, fire client to loser that he lost (current turn is winner turn)
 			player_state_remote:FireClient(loser, "game over", false)
 			player_state_remote:FireClient(winner, "game over", true)
