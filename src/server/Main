@@ -1,10 +1,13 @@
 local rep_storage = game:GetService("ReplicatedStorage")
 local sss = game:GetService("ServerScriptService")
 
-local play_human_remote = rep_storage.PlayHuman
-local play_self_remote = rep_storage.PlaySelf
+local play_classic_remote = rep_storage.PlayClassic
+local play_speed_remote = rep_storage.PlaySpeed
+local play_sandbox_remote = rep_storage.PlaySandbox
 local turn_remote = rep_storage.Turn
 local player_state_remote = rep_storage.PlayerState
+local collect_coins_remote = rep_storage.CollectCoins
+local cancel_remote = rep_storage.Cancel
 
 local GameObject = require(sss.GameObject)
 local unit = game:GetService("ServerStorage").Unit
@@ -13,122 +16,127 @@ local token = rep_storage.Token
 local tween_service = game:GetService("TweenService")
 
 local ProfileManager = require(sss.ProfileStuff.ProfileManager)
+local GameManager = require(sss.GameManager)
 
-local SPACING = 8
-local HEIGHT = 24
 
-local columns_x = {
-
-	-3 * SPACING,
-	-2 * SPACING,
-	-SPACING,
-	0,
-	SPACING,
-	2 * SPACING,
-	3 * SPACING
-
-}
-
-local iteration = 0
+local iteration = 0 --iteration alwyas increments each game object created, is used for unique ID of a game
 local board_dict = {}
 
+
 --contians the player of the next person to be paired to a game
-local queue = nil
+local classic_queue = nil
+local speed_queue = nil
+local minigames_queue = nil
 
---drop physical token but also place the part in a board table
-local function drop_token(drop_column, game_object)
-	local center = game_object.Unit.Board.Center
-	local clone = token:Clone()
-	clone.Position = Vector3.new(center.Position.X -  columns_x[drop_column], center.Position.Y + HEIGHT, center.Position.Z) 
-	clone.Color = game_object.Players[game_object.CurrentTurn][2].Color
-	clone.Material = game_object.Players[game_object.CurrentTurn][2].Material
-	clone.Anchored = false
-	clone.Parent = game_object.Unit.Tokens
+play_classic_remote.OnServerEvent:Connect(function(player)
 	
-	table.insert(game_object.TokenMatrix[drop_column], clone)
-end
-
-play_human_remote.OnServerEvent:Connect(function(player)
+	--check if player is in any other queues
+	if speed_queue == player then
+		speed_queue = nil
+	elseif minigames_queue == player then
+		minigames_queue = nil
+	end
 	
-	if queue then --check if queue is empty
+	if classic_queue then --check if queue is empty
 		
 		--check for same player entering queue
-		if queue ~= player then
-	
-			local new_unit = unit:Clone()
+		if classic_queue ~= player then
 			
-			new_unit.Parent = game.Workspace
-			new_unit:PivotTo(CFrame.new(new_unit.PrimaryPart.Position + Vector3.new(0, 0, 200 * iteration)))
-			
-			local center = new_unit.Board.Center
-		
-			local new_game = GameObject.new(queue, player, new_unit)
-			
-
 			--make a new id (simple linearish function helps provide some concealment so exploiters can't send random ids of other games)
 			local new_id = 2 * iteration + (iteration % 4 + 92)
-
 			iteration += 1
+			
+			local new_game = GameManager.setup_game(classic_queue, player, "Classic")
+			
+			--empty queue
+			classic_queue = nil
 			
 			--add the game object and its id to the database
 			board_dict[new_id] = new_game
-			
-			--change players states to game state - updates ui and camera
-			player_state_remote:FireClient(queue, "game", center, player)
-			player_state_remote:FireClient(player, "game", center, queue)
-			
-			--empty the queue
-			queue = nil
 			
 			--wait time for the gui intro stuff (tweening)
 			wait(2.5)
 
 			new_game:NextTurn(new_id)
+
 		end
 		
 	else --if queue is empty
-		queue = player
-		player_state_remote:FireClient(player, "in queue", true)
+		classic_queue = player
+		player_state_remote:FireClient(player, "in classic queue")
 	end
 end)
 
-play_self_remote.OnServerEvent:Connect(function(player)
-	local new_unit = unit:Clone()
-	new_unit.Parent = game.Workspace
-	new_unit:PivotTo(CFrame.new(new_unit.PrimaryPart.Position + Vector3.new(0, 0, 200 * iteration)))
-
-	local center = new_unit.Board.Center
+play_speed_remote.OnServerEvent:Connect(function(player)
 	
-	--check if the player is in the queue. if they are then remove them from queue
-	if queue == player then
-		queue = nil
+	if classic_queue == player then
+		classic_queue = nil
+	elseif minigames_queue == player then
+		minigames_queue = nil
 	end
+	
+	if speed_queue then --check if queue is empty
 
-	local new_game = GameObject.new(player, player, new_unit)
+		--check for same player entering queue
+		if speed_queue ~= player then
+
+			--make a new id (simple linearish function helps provide some concealment so exploiters can't send random ids of other games)
+			local new_id = 2 * iteration + (iteration % 4 + 92)
+			iteration += 1
+
+			local new_game = GameManager.setup_game(speed_queue, player, "Classic")
+
+			--empty queue
+			speed_queue = nil
+
+			--add the game object and its id to the database
+			board_dict[new_id] = new_game
+
+			--wait time for the gui intro stuff (tweening)
+			wait(2.5)
+
+			new_game:NextTurn(new_id)
+
+		end
+
+	else --if queue is empty
+		speed_queue = player
+		player_state_remote:FireClient(player, "in speed queue")
+	end
+end)
+
+
+play_sandbox_remote.OnServerEvent:Connect(function(player)
 	
 	local new_id = 2 * iteration + (iteration % 4 + 92)
 	iteration += 1
-	board_dict[new_id] = new_game
 	
-	--fire clients to hide intro frame and to move camera into unit
-	player_state_remote:FireClient(player, "game", center, player)
+	--check if the player is in any queue. if they are then remove them from queue
+	if classic_queue == player then
+		classic_queue = nil
+	elseif speed_queue == player then
+		speed_queue = nil
+	end
+
+	local new_game = GameManager.setup_game(player, player, "Self")
+	
+	board_dict[new_id] = new_game
 	
 	--wait time for intro to load
 	wait(2.5)
 	
-	new_game:NextTurn(new_id, center, new_game.BoardMatrix)
+	new_game:NextTurn(new_id)
 end)
+
 
 turn_remote.OnServerEvent:Connect(function(player, id, drop_column)
 	
 	--find the players associated game object through its given id
 	local game_object = board_dict[id]
 	
-	local next_turn = game_object.CurrentTurn % 2 + 1
+	--local next_turn = game_object.CurrentTurn % 2 + 1
 	
-	--execute the turn in the board matrix and physically(server side)
-	table.insert(game_object.BoardMatrix[drop_column], game_object.CurrentTurn)
-	drop_token(drop_column, game_object)
+	game_object:ExecuteTurn(drop_column) --also increments current turn
 	
 	local finished, winner, loser = game_object:IsGameOver(drop_column)
 		
@@ -139,43 +147,49 @@ turn_remote.OnServerEvent:Connect(function(player, id, drop_column)
 			
 			--check so we don't give coins to 'play yourself' matches
 			if winner ~= loser then
+				local win_reward = 10
 				--update winner coin amount on server
 				ProfileManager:Update(winner, "Coins", function(current_coins)
-					return current_coins + 10
+					return current_coins + win_reward
 				end)
+				
+				collect_coins_remote:FireClient(winner, win_reward) --to do coin tween gui stuff
+				
 			end
-			
-			--delay for players to examine green lit board
-			wait(1)
+		
+			wait(1.5) --delay for players to examine green lit board
 			--fire client to winner that he won, fire client to loser that he lost (current turn is winner turn)
 			player_state_remote:FireClient(loser, "game over", false)
 			player_state_remote:FireClient(winner, "game over", true)
 		else
 			--game was a tie
 			player_state_remote:FireClient(player, "game over", nil)
-			player_state_remote:FireClient(game_object.Players[next_turn][1], "game over", nil)
+			player_state_remote:FireClient(game_object.Players[game_object.CurrentTurn][1], "game over", nil)
 		end
-		--tweening of bottom board
-		local bottom = game_object.Unit.Board.Bottom
-		bottom.Transparency = 1
-		local goal = {}
-		goal.Position = bottom.Position + Vector3.new(-150, 0, 0)
-		local tween_info = TweenInfo.new(2, Enum.EasingStyle.Linear)
-		local tween = tween_service:Create(bottom, tween_info, goal)
-		tween:Play()
+		game_object:bottom_tween()
 		wait(5)
 		table.remove(board_dict, id)
+		--insert the finished units position to be reused
+		GameManager.reuse_position(game_object.Unit.Board.Center.Position)
 		game_object:Destroy()
 		
 	else
-		--check if someone won, if they didnt then call next turn
-		game_object.CurrentTurn = next_turn
-
 		--call the next player's turn
 		game_object:NextTurn(id)
 	end
-	
-
-
 end)
 
+
+cancel_remote.OnServerEvent:Connect(function(player, game_type)
+	
+	if game_type == "Classic" then
+		classic_queue = nil
+	elseif game_type == "Speed" then
+		speed_queue = nil
+	elseif game_type == "Minigames" then
+		minigames_queue = nil
+	end
+	
+	player_state_remote:FireClient(player)
+	
+end)
