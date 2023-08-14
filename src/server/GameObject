@@ -1,15 +1,87 @@
+local tween_service = game:GetService("TweenService")
+
 local Sequence = require(game:GetService("ServerScriptService").Sequence)
 local ProfileManager = require(game:GetService("ServerScriptService").ProfileStuff.ProfileManager)
 local ItemData = require(game:GetService("ServerScriptService").ItemData)
 
 local turn_remote = game:GetService("ReplicatedStorage").Turn
+local player_state_remote = game:GetService("ReplicatedStorage").PlayerState
+
+local token = game:GetService("ReplicatedStorage").Token
+
+local SPACING_X = 8
+local SPACING_Y = 6
+local HEIGHT = 24
+
+local columns_x = {
+
+	-3 * SPACING_X,
+	-2 * SPACING_X,
+	-SPACING_X,
+	0,
+	SPACING_X,
+	2 * SPACING_X,
+	3 * SPACING_X
+
+}
+
+
+--drop physical token but also place the part in a board table
+local function drop_token(drop_column, game_object)
+	local center = game_object.Unit.Board.Center
+	local clone = token:Clone()
+	clone.Position = Vector3.new(center.Position.X -  columns_x[drop_column], center.Position.Y + HEIGHT, center.Position.Z) 
+	clone.Color = game_object.Players[game_object.CurrentTurn][2].Color
+	clone.Material = game_object.Players[game_object.CurrentTurn][2].Material
+	clone.Anchored = false
+	clone.Parent = game_object.Unit.Tokens
+	
+	local nil_index = table.find(game_object.TokenMatrix[drop_column], "nil")
+	if nil_index then
+		game_object.TokenMatrix[drop_column][nil_index] = clone
+	else
+		--execute the turn in the board matrix and physically(server side) normally
+		table.insert(game_object.TokenMatrix[drop_column], clone)
+	end
+end
+
+
+local function place_spot(spot_row, spot_column, game_object)
+	local bottom_left = game_object.Unit.Board.BottomLeft
+	local clone = token:Clone()
+	local position = Vector3.new(bottom_left.Position.X + (spot_column - 1) * SPACING_X, bottom_left.Position.Y + (spot_row - 1) * SPACING_Y, bottom_left.Position.Z)
+	clone.Position = position
+	clone.Color = Color3.new(1, 0.533333, 0.12549)
+	clone.Material = Enum.Material.Plastic
+	clone.Transparency = 0.5
+	clone.CanCollide = false
+	clone.Anchored = true
+	clone.Parent = game_object.Unit.Tokens
+	
+	--place spot token in the token matrix
+	--local nil_index = table.find(game_object.TokenMatrix[spot_column], nil)
+	--if nil_index then
+	--game_object.TokenMatrix[spot_column][spot_row] = clone
+	--else
+	--	--execute the turn in the board matrix and physically(server side) normally
+	--table.insert(game_object.TokenMatrix[spot_column], clone)
+	--end
+	
+	
+	for i = 1, spot_row do
+		table.insert(game_object.TokenMatrix[spot_column], "nil")
+	end
+	
+	table.insert(game_object.TokenMatrix[spot_column], clone)
+end
+
 
 local GameObject = {}
 
 GameObject.__index = GameObject
 
 
-function GameObject.new(player1, player2, unit)
+function GameObject.new(player1, player2, unit, game_type)
 	local newGame = {}
 	setmetatable(newGame, GameObject)
 	
@@ -60,6 +132,53 @@ function GameObject.new(player1, player2, unit)
 	}
 	newGame.CurrentTurn = 1
 	
+	
+	--setup timer for each player based on game type
+	if game_type == "Classic" then
+		newGame.Timer = 10
+	elseif game_type == "Speed" then
+		newGame.Timer = 1
+	elseif game_type == "Self" then
+		newGame.Timer = 30
+	elseif game_type == "Spots" then
+		newGame.Timer = 10
+		
+		local num_spots = 3
+		
+		local final_cols = {}
+		
+		local cols_left = {1, 2, 3, 4, 5, 6, 7}
+		
+		for i = 1, num_spots do
+			--select which column to pick a spot to go in that's still available
+			local select_col = cols_left[math.random(1, #cols_left)]
+			
+			--this just eliminates columns directly adjacent to the selected column
+			if select_col - 1 >= 1 then
+				table.remove(select_col - 1)
+			end
+
+			if select_col + 1 <= 7 then
+				table.remove(select_col + 1)
+			end
+			
+			--now select a random row to put the spot in
+			local random_row = math.random(1, 6)
+			
+			--fill column with 0's until reach the desired row, then insert "3" (spot)
+			for i = 1, random_row do
+				table.insert(newGame.BoardMatrix[select_col], 0)
+			end
+			
+			table.insert(newGame.BoardMatrix[select_col], 3)
+			
+			--physically place the 'spot'
+			place_spot(random_row, select_col, newGame)
+			
+		end
+		
+	end
+	
 	return newGame
 end
 
@@ -70,6 +189,31 @@ function GameObject:NextTurn(id)
 	wait(0.5)
 	
 	turn_remote:FireClient(self.Players[self.CurrentTurn][1], id, self)
+end
+
+function GameObject:ExecuteTurn(drop_column)
+	
+	--if this column has a spot in it (empty 0's below))
+	local zero_index = table.find(self.BoardMatrix[drop_column], 0)
+	if zero_index then
+		self.BoardMatrix[drop_column][zero_index] = self.CurrentTurn
+		drop_token(drop_column, self)
+		
+		--check to see if we should make the spot cancollidable if all 0's are gone below it
+		if not table.find(self.BoardMatrix[drop_column], 0) then
+			self.TokenMatrix[drop_column][zero_index + 1].CanCollide = true
+			self.TokenMatrix[drop_column][zero_index + 1].Transparency = 0
+		end
+		
+	else
+		--execute the turn in the board matrix and physically(server side) normally
+		table.insert(self.BoardMatrix[drop_column], self.CurrentTurn)
+		drop_token(drop_column, self)
+	end
+
+
+	--increment the current turn
+	self.CurrentTurn = self.CurrentTurn % 2 + 1
 end
 
 function GameObject:IsGameOver(drop_column)
@@ -94,6 +238,11 @@ function GameObject:IsGameOver(drop_column)
 		local is_four_in_a_row, winner_turn, start_index = Sequence.check_four_in_a_row(sequence)
 		if is_four_in_a_row then
 			
+			local winner = self.Players[winner_turn][1]
+			local loser = self.Players[winner_turn % 2 + 1][1]
+			player_state_remote:FireClient(winner, "hide game menu")
+			player_state_remote:FireClient(loser, "hide game menu")
+			
 			--make winning 4 in a row tokens green
 			local second_indices, first_indices = Sequence.find_four(drop_row, drop_column, i, start_index, diag_drop_indices)
 		
@@ -107,12 +256,25 @@ function GameObject:IsGameOver(drop_column)
 				wait(0.05)
 			end
 			
-			return true, self.Players[winner_turn][1], self.Players[winner_turn % 2 + 1][1]
+			return true, winner, loser
 		end
 	end
 
 	return false, nil, nil
 end
+
+
+function GameObject:bottom_tween()
+	--tweening of bottom board
+	local bottom = self.Unit.Board.Bottom
+	bottom.Transparency = 1
+	local goal = {}
+	goal.Position = bottom.Position + Vector3.new(-150, 0, 0)
+	local tween_info = TweenInfo.new(2, Enum.EasingStyle.Linear)
+	local tween = tween_service:Create(bottom, tween_info, goal)
+	tween:Play()
+end
+
 
 function GameObject:Destroy()
 	self.Unit:Destroy()
